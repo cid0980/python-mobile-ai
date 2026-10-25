@@ -17,8 +17,8 @@ Designed with modern interface engineering principles — precision dark surface
   - Automatically queries live web specifications and pricing for smartphone lookups while skipping casual greetings (`"hello"`, `"thanks"`) to keep citations genuine and latency fast.
 - **Groq Rate-Limit & Token Protection**
   - Budgets ~800–1,200 tokens per turn using rolling context compression and automatically rotates across active Groq models (`llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`) on `429` rate limits.
-- **Zero-Token Neural Voice Output (`edge-tts`)**
-  - Streams natural neural speech (`Andrew`, `Aria`, `Ryan`, `Sonia`) over `/api/tts` with hover-revealed per-response `Listen` controls and an animated top-bar audio equalizer.
+- **Real-Time Word-Synchronized Neural Voice (`edge-tts` `WordBoundary` Lockstep)**
+  - Uses fast-inference neural voices (`Guy`, `Aria`, `Christopher`, `Sonia` over IPv4) and streams NDJSON audio segments with exact millisecond `WordBoundary` timestamps so every heading, bullet, and word appears **one-by-one in real-time lockstep with the spoken voice** (zero premature text dump, zero inter-sentence delay).
 - **Dedicated Settings & Credentials Sheet (`Ctrl+,` / `⌘,`)**
   - 1-click **`Paste`**, **`Show/Hide`**, and **`Verify`** for your Groq API key (`saved locally to .env`), model & neural voice selectors, live web search toggle, and OS login auto-start switch.
 

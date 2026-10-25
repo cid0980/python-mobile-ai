@@ -13,7 +13,6 @@
     /* Polish System: Jakub Krehel & Emil Kowalski — concentric radii, tabular-nums, optical alignment, scale(0.96), specific GPU transitions */
 
     :root {
-      /* Locked Surface Tokens */
       --surface-app: #090b10;
       --surface-deck: #0d1017;
       --surface-panel: #121620;
@@ -21,42 +20,34 @@
       --surface-hover: rgba(255, 255, 255, 0.045);
       --surface-active: rgba(255, 255, 255, 0.075);
 
-      /* Structural Borders & Elevation Shadows */
       --border-structure: rgba(255, 255, 255, 0.07);
       --border-subtle: rgba(255, 255, 255, 0.045);
       --border-focus: rgba(56, 189, 248, 0.45);
       --shadow-surface: 0 0 0 1px rgba(255, 255, 255, 0.055), 0 8px 24px -6px rgba(0, 0, 0, 0.55);
       --shadow-modal: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 28px 64px -12px rgba(0, 0, 0, 0.78);
 
-      /* Typography & Ink Tokens */
       --ink-primary: #f3f5f8;
       --ink-secondary: #9ba3b4;
       --ink-muted: #5e6678;
-      --ink-faint: #3e4556;
 
-      /* Semantic Signal Tokens */
       --signal-a: #38bdf8;
       --signal-a-soft: rgba(56, 189, 248, 0.14);
       --signal-b: #a78bfa;
       --signal-b-soft: rgba(167, 139, 250, 0.14);
       --signal-pos: #10b981;
-      --signal-pos-soft: rgba(16, 185, 129, 0.12);
       --signal-warn: #f59e0b;
       --signal-err: #f43f5e;
 
-      /* Font Stacks */
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-      /* Concentric Radius Scale (outer = inner + padding) */
       --r-modal: 20px;
-      --r-composer: 16px;       /* padding: 6px -> inner action 10px */
-      --r-bento-shell: 14px;    /* padding: 4px -> inner cell 10px */
+      --r-composer: 16px;
+      --r-bento-shell: 14px;
       --r-inner: 10px;
       --r-control: 8px;
       --r-micro: 6px;
 
-      /* Motion Curves */
       --ease-out-quart: cubic-bezier(0.2, 0, 0, 1);
     }
 
@@ -85,7 +76,6 @@
       letter-spacing: -0.015em;
     }
 
-    /* Unified 1.5px Stroke Icons */
     svg.icon {
       width: 16px;
       height: 16px;
@@ -97,14 +87,13 @@
       flex-shrink: 0;
     }
 
-    /* Custom Subtle Scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.09); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
 
     /* =========================================================================
-       App Shell: Top Command Header + 2-Pane Split Instrument Surface
+       App Shell
        ========================================================================= */
     .app-shell {
       display: grid;
@@ -183,7 +172,6 @@
       50% { opacity: 0.4; transform: scale(0.8); }
     }
 
-    /* Center Omnibar (Quick Device Lookup) */
     .omnibar {
       position: relative;
       display: flex;
@@ -227,31 +215,35 @@
       background: rgba(255, 255, 255, 0.025);
     }
 
-    /* Top Right Minimal Icon Triggers (40x40 hit targets, zero button clutter) */
     .top-actions {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 6px;
     }
 
     .icon-trigger {
       position: relative;
-      width: 36px;
-      height: 36px;
+      height: 34px;
+      min-width: 36px;
+      padding: 0 8px;
       border-radius: var(--r-control);
       border: none;
       background: transparent;
       color: var(--ink-secondary);
-      display: inline-grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
       cursor: pointer;
       transition: transform 140ms var(--ease-out-quart), background-color 140ms ease, color 140ms ease;
     }
     .icon-trigger::after {
       content: "";
       position: absolute;
-      inset: -2px; /* Expands hit area to 40x40px */
+      inset: -3px;
     }
     .icon-trigger:hover {
       background: var(--surface-hover);
@@ -266,22 +258,25 @@
     }
     .icon-trigger .key-dot {
       position: absolute;
-      top: 7px;
-      right: 7px;
+      top: 6px;
+      right: 6px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: var(--signal-warn);
     }
 
-    /* Audio Equalizer Bars when speaking */
     .eq-bars {
       display: none;
       align-items: flex-end;
       gap: 2px;
       height: 13px;
     }
-    .icon-trigger.speaking .speaker-svg { display: none; }
+    .eq-bars.inline {
+      display: inline-flex;
+    }
+    .icon-trigger.speaking .speaker-svg,
+    .icon-trigger.speaking .mute-svg { display: none !important; }
     .icon-trigger.speaking .eq-bars { display: inline-flex; }
     .icon-trigger.speaking {
       color: var(--signal-a);
@@ -291,18 +286,18 @@
       width: 2px;
       background: currentColor;
       border-radius: 1px;
-      animation: eqBounce 0.75s ease-in-out infinite;
+      animation: eqBounce 0.72s ease-in-out infinite;
     }
     .eq-bars span:nth-child(1) { height: 5px; animation-delay: 0s; }
-    .eq-bars span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
-    .eq-bars span:nth-child(3) { height: 7px; animation-delay: 0.3s; }
+    .eq-bars span:nth-child(2) { height: 12px; animation-delay: 0.14s; }
+    .eq-bars span:nth-child(3) { height: 7px; animation-delay: 0.28s; }
     @keyframes eqBounce {
-      0%, 100% { transform: scaleY(0.45); }
+      0%, 100% { transform: scaleY(0.42); }
       50% { transform: scaleY(1); }
     }
 
     /* =========================================================================
-       Split Workspace: Left Telemetry Deck (490px) | 1px Divider | Right Stream
+       Split Workspace
        ========================================================================= */
     .workspace {
       display: grid;
@@ -315,7 +310,6 @@
       .workspace { grid-template-columns: 430px 1fr; }
     }
 
-    /* ---------------- LEFT PANE: HARDWARE TELEMETRY DECK ---------------- */
     .deck-pane {
       display: flex;
       flex-direction: column;
@@ -410,7 +404,6 @@
       padding: 20px 18px 28px;
     }
 
-    /* Device Identity Header */
     .sample-tag {
       display: inline-flex;
       align-items: center;
@@ -488,11 +481,8 @@
       font-weight: 600;
       color: var(--ink-primary);
     }
-    .ticker-cell-val.price {
-      color: var(--signal-a);
-    }
+    .ticker-cell-val.price { color: var(--signal-a); }
 
-    /* Radar + Precision Telemetry Block */
     .telemetry-block {
       margin-top: 16px;
       padding: 14px;
@@ -526,10 +516,7 @@
       font-size: 12px;
     }
 
-    .score-name {
-      color: var(--ink-secondary);
-      font-size: 11.5px;
-    }
+    .score-name { color: var(--ink-secondary); font-size: 11.5px; }
 
     .score-track {
       height: 4px;
@@ -553,7 +540,6 @@
       color: var(--ink-primary);
     }
 
-    /* Concentric Bento Hardware Spec Grid (outer 14px / padding 4px / inner 10px) */
     .section-caption {
       margin: 18px 0 8px;
       font-family: var(--font-mono);
@@ -581,9 +567,7 @@
       flex-direction: column;
       gap: 4px;
     }
-    .spec-cell.wide {
-      grid-column: span 2;
-    }
+    .spec-cell.wide { grid-column: span 2; }
 
     .spec-cell-head {
       display: flex;
@@ -609,7 +593,6 @@
       text-wrap: pretty;
     }
 
-    /* Strengths & Trade-offs Signal Lists */
     .signals-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -640,9 +623,7 @@
       color: var(--ink-primary);
       line-height: 1.4;
     }
-    .signal-list.tradeoffs li {
-      color: var(--ink-secondary);
-    }
+    .signal-list.tradeoffs li { color: var(--ink-secondary); }
 
     .sig-marker {
       font-family: var(--font-mono);
@@ -664,7 +645,7 @@
       text-wrap: pretty;
     }
 
-    /* ---------------- HEAD-TO-HEAD COMPARE VIEW ---------------- */
+    /* Compare View */
     .compare-omnibar {
       display: grid;
       grid-template-columns: 1fr auto 1fr auto;
@@ -689,9 +670,7 @@
       font-size: 12px;
       outline: none;
     }
-    .compare-omnibar input:focus {
-      border-color: var(--border-focus);
-    }
+    .compare-omnibar input:focus { border-color: var(--border-focus); }
     .vs-divider {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -733,16 +712,8 @@
       border-radius: 50%;
       margin-right: 6px;
     }
-    .legend-name {
-      font-weight: 600;
-      font-size: 13px;
-      color: var(--ink-primary);
-    }
-    .legend-sub {
-      margin-top: 3px;
-      font-size: 11px;
-      color: var(--ink-secondary);
-    }
+    .legend-name { font-weight: 600; font-size: 13px; color: var(--ink-primary); }
+    .legend-sub { margin-top: 3px; font-size: 11px; color: var(--ink-secondary); }
 
     .dual-radar-box {
       padding: 12px;
@@ -755,12 +726,7 @@
       gap: 10px;
     }
 
-    .delta-table {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .delta-table { display: flex; flex-direction: column; gap: 6px; }
     .delta-row {
       display: grid;
       grid-template-columns: 74px 1fr auto;
@@ -768,11 +734,7 @@
       font-size: 11.5px;
       gap: 6px;
     }
-    .delta-pair {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .delta-pair { display: flex; align-items: center; gap: 6px; }
     .val-a { color: var(--signal-a); font-weight: 600; }
     .val-b { color: var(--signal-b); font-weight: 600; }
     .delta-badge {
@@ -817,7 +779,7 @@
     }
 
     /* =========================================================================
-       RIGHT PANE: ANALYST CONVERSATION STREAM + CONCENTRIC COMPOSER
+       RIGHT PANE: ANALYST STREAM + WORD-SYNCHRONIZED VOICE REVEAL
        ========================================================================= */
     .stream-pane {
       display: flex;
@@ -844,10 +806,7 @@
       font-size: 12.5px;
       color: var(--ink-secondary);
     }
-    .stream-context strong {
-      color: var(--ink-primary);
-      font-weight: 600;
-    }
+    .stream-context strong { color: var(--ink-primary); font-weight: 600; }
 
     .stream-feed {
       flex: 1;
@@ -863,10 +822,7 @@
       gap: 20px;
     }
 
-    /* Editorial Empty State (No Generic Button Grid) */
-    .editorial-welcome {
-      padding: 18px 0 8px;
-    }
+    .editorial-welcome { padding: 18px 0 8px; }
     .welcome-kicker {
       font-family: var(--font-mono);
       font-size: 11px;
@@ -914,10 +870,7 @@
       background: var(--surface-hover);
       padding-left: 14px;
     }
-    .index-item-title {
-      font-size: 13px;
-      font-weight: 500;
-    }
+    .index-item-title { font-size: 13px; font-weight: 500; }
     .index-item-spec {
       font-family: var(--font-mono);
       font-size: 11.5px;
@@ -932,7 +885,6 @@
       transform: translateX(3px);
     }
 
-    /* Conversation Turns */
     .turn-user {
       align-self: flex-end;
       max-width: 82%;
@@ -984,8 +936,15 @@
       font-family: var(--font-mono);
       font-size: 10.5px;
     }
+    .live-voice-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--signal-a);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+    }
 
-    /* Hover-Revealed Ghost Actions on Messages (Zero Permanent Button Clutter) */
     .turn-actions {
       display: flex;
       align-items: center;
@@ -998,7 +957,40 @@
       opacity: 1;
     }
 
-    /* Rich Analyst Prose Formatting */
+    /* Word-by-Word Live Synchronized Reveal Styling */
+    .voice-prep-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-muted);
+    }
+    .voice-prep-indicator .eq-bars {
+      color: var(--signal-a);
+    }
+
+    .sync-line.pending {
+      display: none !important;
+    }
+    .prose ul:not(:has(li:not(.pending))) {
+      display: none;
+    }
+
+    .w-tok {
+      opacity: 0;
+      transition: opacity 110ms var(--ease-out-quart), color 110ms ease;
+    }
+    .w-tok.revealed {
+      opacity: 1;
+    }
+    .w-tok.speaking-word {
+      opacity: 1;
+      color: #ffffff;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.42);
+    }
+
     .prose {
       color: #dce1ec;
       font-size: 13.5px;
@@ -1013,9 +1005,7 @@
       color: var(--ink-secondary);
       margin: 14px 0 6px;
     }
-    .prose h3:first-child, .prose h4:first-child {
-      margin-top: 2px;
-    }
+    .prose h3:first-child, .prose h4:first-child { margin-top: 2px; }
     .prose p { margin-bottom: 8px; }
     .prose p:last-child { margin-bottom: 0; }
     .prose ul {
@@ -1049,7 +1039,10 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
+      opacity: 1;
+      transition: opacity 220ms var(--ease-out-quart);
     }
+    .sources-line.hidden { opacity: 0; pointer-events: none; height: 0; margin: 0; overflow: hidden; }
     .source-link {
       font-family: var(--font-mono);
       font-size: 10.5px;
@@ -1066,7 +1059,7 @@
       border-color: rgba(56, 189, 248, 0.3);
     }
 
-    /* Concentric Bottom Composer (outer 16px = inner 10px + 6px padding) */
+    /* Concentric Bottom Composer */
     .composer-dock {
       padding: 10px 24px 16px;
       background: linear-gradient(to top, var(--surface-app) 75%, transparent);
@@ -1099,9 +1092,7 @@
       height: 36px;
       width: 100%;
     }
-    .composer-input::placeholder {
-      color: var(--ink-muted);
-    }
+    .composer-input::placeholder { color: var(--ink-muted); }
 
     .inline-model-tag {
       font-family: var(--font-mono);
@@ -1122,7 +1113,7 @@
     .send-action {
       width: 36px;
       height: 36px;
-      border-radius: var(--r-inner); /* 10px + 6px padding = 16px concentric! */
+      border-radius: var(--r-inner);
       border: none;
       background: var(--ink-primary);
       color: var(--surface-app);
@@ -1133,13 +1124,10 @@
     }
     .send-action:hover { opacity: 0.9; }
     .send-action:active { transform: scale(0.96); }
-    .send-action:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+    .send-action:disabled { opacity: 0.35; cursor: not-allowed; }
 
     /* =========================================================================
-       Modal Settings Sheet (Concentric Radii + 1-Click Paste API Key)
+       Modal Settings Sheet
        ========================================================================= */
     .modal-backdrop {
       position: fixed;
@@ -1153,10 +1141,7 @@
       pointer-events: none;
       transition: opacity 180ms var(--ease-out-quart);
     }
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
 
     .modal-sheet {
       width: min(520px, 92vw);
@@ -1167,9 +1152,7 @@
       transform: translateY(8px) scale(0.98);
       transition: transform 200ms var(--ease-out-quart);
     }
-    .modal-backdrop.open .modal-sheet {
-      transform: translateY(0) scale(1);
-    }
+    .modal-backdrop.open .modal-sheet { transform: translateY(0) scale(1); }
 
     .modal-head {
       display: flex;
@@ -1191,12 +1174,7 @@
       gap: 16px;
     }
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
     .field-label-row {
       display: flex;
       align-items: center;
@@ -1213,7 +1191,6 @@
     }
     .ext-link:hover { text-decoration: underline; }
 
-    /* Concentric Input Shell: outer 10px = inner 6px + 4px padding */
     .key-input-shell {
       display: flex;
       align-items: center;
@@ -1223,9 +1200,7 @@
       background: var(--surface-app);
       border: 1px solid var(--border-structure);
     }
-    .key-input-shell:focus-within {
-      border-color: var(--border-focus);
-    }
+    .key-input-shell:focus-within { border-color: var(--border-focus); }
     .key-input-shell input {
       flex: 1;
       height: 30px;
@@ -1279,17 +1254,9 @@
       cursor: pointer;
       transition: border-color 140ms ease;
     }
-    .native-select:focus {
-      border-color: var(--border-focus);
-    }
+    .native-select:focus { border-color: var(--border-focus); }
 
-    .toggle-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-top: 4px;
-    }
-
+    .toggle-list { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
     .toggle-row {
       display: flex;
       align-items: center;
@@ -1298,12 +1265,8 @@
       font-size: 12.5px;
       color: var(--ink-primary);
     }
-    .toggle-sub {
-      font-size: 11px;
-      color: var(--ink-muted);
-    }
+    .toggle-sub { font-size: 11px; color: var(--ink-muted); }
 
-    /* Tactile Switch */
     .switch-track {
       position: relative;
       width: 36px;
@@ -1323,14 +1286,8 @@
       background: var(--ink-primary);
       transition: transform 160ms var(--ease-out-quart);
     }
-    input[type="checkbox"].sr-only {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    input[type="checkbox"].sr-only:checked + .switch-track {
-      background: var(--signal-a);
-    }
+    input[type="checkbox"].sr-only { position: absolute; opacity: 0; pointer-events: none; }
+    input[type="checkbox"].sr-only:checked + .switch-track { background: var(--signal-a); }
     input[type="checkbox"].sr-only:checked + .switch-track .switch-thumb {
       transform: translateX(16px);
       background: #061018;
@@ -1344,10 +1301,7 @@
       background: var(--surface-app);
       border-top: 1px solid var(--border-structure);
     }
-    .modal-feedback {
-      font-size: 11.5px;
-      color: var(--ink-secondary);
-    }
+    .modal-feedback { font-size: 11.5px; color: var(--ink-secondary); }
     .primary-save {
       height: 34px;
       padding: 0 16px;
@@ -1364,7 +1318,6 @@
     .primary-save:hover { opacity: 0.92; }
     .primary-save:active { transform: scale(0.96); }
 
-    /* Toast Notification */
     .toast {
       position: fixed;
       bottom: 22px;
@@ -1381,10 +1334,7 @@
       transition: opacity 160ms var(--ease-out-quart), transform 160ms var(--ease-out-quart);
       z-index: 200;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -1405,7 +1355,6 @@
         </div>
       </div>
 
-      <!-- Center Quick-Jump Omnibar -->
       <form class="omnibar" id="omniForm" autocomplete="off">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7"></circle>
@@ -1419,17 +1368,22 @@
         <span class="kbd-hint">⌘K</span>
       </form>
 
-      <!-- Minimal 2-Icon Right Cluster -->
       <div class="top-actions">
-        <button class="icon-trigger" id="voiceBtn" title="Audio Output (Click to stop when playing)">
+        <button class="icon-trigger active" id="voiceBtn" title="Live Voice + Text Sync (Click to mute or stop)">
           <svg class="icon speaker-svg" viewBox="0 0 24 24">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
           </svg>
+          <svg class="icon mute-svg" viewBox="0 0 24 24" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
           <span class="eq-bars" aria-hidden="true">
             <span></span><span></span><span></span>
           </span>
+          <span id="voiceStateLabel">VOICE</span>
         </button>
 
         <button class="icon-trigger" id="settingsBtn" title="Settings & API Key (Ctrl+,)">
@@ -1444,7 +1398,6 @@
 
     <!-- ================= MAIN 2-PANE SPLIT WORKSPACE ================= -->
     <main class="workspace">
-      <!-- LEFT TELEMETRY DECK -->
       <aside class="deck-pane">
         <div class="pane-nav">
           <div class="nav-tabs">
@@ -1473,7 +1426,6 @@
         <div class="deck-scroll" id="deckContainer"></div>
       </aside>
 
-      <!-- RIGHT ANALYST STREAM -->
       <section class="stream-pane">
         <div class="stream-header">
           <div class="stream-context" id="streamContext">
@@ -1571,10 +1523,10 @@
 
           <label class="toggle-row">
             <div>
-              <div>Auto-Read Analyst Replies</div>
-              <div class="toggle-sub">Stream neural voice audio automatically after each response</div>
+              <div>Synchronized Voice + Word Reveal</div>
+              <div class="toggle-sub">Speak replies and reveal each word in real-time lockstep with the voice</div>
             </div>
-            <input type="checkbox" class="sr-only" id="autoVoiceToggle" />
+            <input type="checkbox" class="sr-only" id="autoVoiceToggle" checked />
             <span class="switch-track"><span class="switch-thumb"></span></span>
           </label>
 
@@ -1599,9 +1551,6 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // =========================================================================
-    // Application State & SVG Icon Dictionary (1.5px unified stroke)
-    // =========================================================================
     const SPEC_ICONS = {
       display: '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
       processor: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>',
@@ -1620,16 +1569,42 @@
       model: 'llama-3.3-70b-versatile',
       models: [],
       voices: {},
-      voiceId: 'en-US-AndrewMultilingualNeural',
+      voiceId: 'en-US-GuyNeural',
       liveWeb: true,
-      autoVoice: false,
+      autoVoice: true,
       autostart: false,
       primaryCard: null,
       compareCard: null,
-      history: [],
       busy: false,
-      audioPlayer: null
+      syncSessionId: 0,
+      activeSyncTurn: null
     };
+
+    // Persistent Audio element unlocked on user gesture so autoplay never fails
+    const syncAudio = new Audio();
+    syncAudio.preload = 'auto';
+    let audioUnlocked = false;
+
+    function unlockAudioOnGesture() {
+      if (audioUnlocked) return;
+      try {
+        // Tiny silent WAV data URI to satisfy browser gesture requirement immediately
+        syncAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        syncAudio.volume = 0.01;
+        const p = syncAudio.play();
+        if (p && p.then) {
+          p.then(() => {
+            syncAudio.pause();
+            syncAudio.volume = 1.0;
+            audioUnlocked = true;
+          }).catch(() => {
+            syncAudio.volume = 1.0;
+          });
+        }
+      } catch (_e) {
+        syncAudio.volume = 1.0;
+      }
+    }
 
     const el = (id) => document.getElementById(id);
 
@@ -1649,7 +1624,6 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Clean lightweight Markdown-to-HTML renderer for Analyst responses
     function renderMarkdown(md) {
       const lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
       let html = '';
@@ -1686,7 +1660,311 @@
     }
 
     // =========================================================================
-    // 5-Axis SVG Hardware Radar Generator (Supports Single & Dual Polygons)
+    // Word-Synchronized DOM Builder & Drift-Free Timestamp Aligner
+    // =========================================================================
+    function buildWordSyncedFragment(markdownSegment) {
+      const temp = document.createElement('div');
+      temp.innerHTML = renderMarkdown(markdownSegment);
+
+      const wordItems = [];
+      const lineBlocks = temp.querySelectorAll('h3, h4, li, p');
+
+      lineBlocks.forEach((lineEl) => {
+        lineEl.classList.add('sync-line', 'pending');
+        const walker = document.createTreeWalker(lineEl, NodeFilter.SHOW_TEXT, null);
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node.nodeValue && node.nodeValue.trim()) {
+            textNodes.push(node);
+          }
+        }
+
+        textNodes.forEach((tNode) => {
+          const parts = tNode.nodeValue.split(/(\s+)/);
+          const frag = document.createDocumentFragment();
+          for (const part of parts) {
+            if (!part) continue;
+            if (/^\s+$/.test(part)) {
+              frag.appendChild(document.createTextNode(part));
+            } else {
+              const span = document.createElement('span');
+              span.className = 'w-tok';
+              span.textContent = part;
+              frag.appendChild(span);
+              wordItems.push({ span, lineEl, text: part, startMs: 0, endMs: 0 });
+            }
+          }
+          tNode.parentNode.replaceChild(frag, tNode);
+        });
+      });
+
+      const outFrag = document.createDocumentFragment();
+      while (temp.firstChild) {
+        outFrag.appendChild(temp.firstChild);
+      }
+      return { fragment: outFrag, wordItems };
+    }
+
+    function normalizeWord(s) {
+      return String(s || '').toLowerCase().replace(/[^a-z0-9₹$]/g, '');
+    }
+
+    function alignWordsWithBoundaries(wordItems, rawBoundaries, totalDurationMs) {
+      const M = wordItems.length;
+      if (!M) return;
+
+      // Expand any multi-word boundary (e.g. "6000 mAh" -> ["6000", "mAh"])
+      const expanded = [];
+      for (const b of (rawBoundaries || [])) {
+        const subParts = String(b.text || '').trim().split(/\s+/).filter(Boolean);
+        if (!subParts.length) continue;
+        const totalChars = subParts.reduce((acc, p) => acc + p.length, 0) || 1;
+        let curOffset = Number(b.offset_ms || 0);
+        const fullDur = Math.max(40, Number(b.duration_ms || 120));
+        for (const sp of subParts) {
+          const subDur = fullDur * (sp.length / totalChars);
+          expanded.push({
+            norm: normalizeWord(sp),
+            offset_ms: curOffset,
+            end_ms: curOffset + subDur
+          });
+          curOffset += subDur;
+        }
+      }
+
+      if (!expanded.length) {
+        const fallbackTotal = Math.max(300, totalDurationMs || M * 52);
+        const step = fallbackTotal / M;
+        wordItems.forEach((w, idx) => {
+          w.startMs = idx * step;
+          w.endMs = (idx + 1) * step;
+        });
+        return;
+      }
+
+      // Greedy monotonic subsequence anchor matching
+      const anchors = new Array(M).fill(null);
+      let bIdx = 0;
+
+      for (let i = 0; i < M && bIdx < expanded.length; i++) {
+        const wNorm = normalizeWord(wordItems[i].text);
+        if (!wNorm) continue;
+
+        const maxLook = Math.min(expanded.length, bIdx + 5);
+        for (let j = bIdx; j < maxLook; j++) {
+          const bNorm = expanded[j].norm;
+          if (!bNorm) continue;
+          if (wNorm === bNorm || wNorm.startsWith(bNorm) || bNorm.startsWith(wNorm)) {
+            anchors[i] = { startMs: expanded[j].offset_ms, endMs: expanded[j].end_ms };
+            bIdx = j + 1;
+            break;
+          }
+        }
+      }
+
+      const finalEndMs = Math.max(
+        totalDurationMs || 0,
+        expanded[expanded.length - 1].end_ms + 80
+      );
+
+      // Interpolate any unanchored symbols/tokens smoothly between anchored neighbors
+      let i = 0;
+      while (i < M) {
+        if (anchors[i]) {
+          wordItems[i].startMs = anchors[i].startMs;
+          wordItems[i].endMs = anchors[i].endMs;
+          i++;
+          continue;
+        }
+        const gapStart = i;
+        while (i < M && !anchors[i]) i++;
+        const gapEnd = i; // first anchored after gap, or M
+        const leftMs = gapStart > 0 ? wordItems[gapStart - 1].endMs : Math.max(0, expanded[0].offset_ms - 40);
+        const rightMs = gapEnd < M ? anchors[gapEnd].startMs : finalEndMs;
+        const count = gapEnd - gapStart;
+        const spanMs = Math.max(20, rightMs - leftMs);
+        const step = spanMs / (count + 1);
+        for (let k = 0; k < count; k++) {
+          const idx = gapStart + k;
+          wordItems[idx].startMs = leftMs + step * k;
+          wordItems[idx].endMs = leftMs + step * (k + 1);
+        }
+      }
+
+      // Guarantee non-decreasing timestamps
+      for (let k = 1; k < M; k++) {
+        if (wordItems[k].startMs < wordItems[k - 1].startMs) {
+          wordItems[k].startMs = wordItems[k - 1].startMs;
+        }
+        if (wordItems[k].endMs < wordItems[k].startMs + 25) {
+          wordItems[k].endMs = wordItems[k].startMs + 25;
+        }
+      }
+    }
+
+    function base64ToBlobUrl(b64, mime = 'audio/mpeg') {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return URL.createObjectURL(new Blob([bytes], { type: mime }));
+    }
+
+    // Play a single segment's audio while revealing its words in real-time 60fps lockstep
+    function playSegmentInLockstep(seg, proseEl, sessionId) {
+      return new Promise((resolve) => {
+        if (sessionId !== state.syncSessionId) return resolve();
+
+        const { fragment, wordItems } = buildWordSyncedFragment(seg.markdown);
+        alignWordsWithBoundaries(wordItems, seg.words, seg.duration_ms);
+        proseEl.appendChild(fragment);
+
+        const revealAllInSegment = () => {
+          wordItems.forEach((w) => {
+            w.lineEl.classList.remove('pending');
+            w.span.classList.remove('speaking-word');
+            w.span.classList.add('revealed');
+          });
+        };
+
+        // Fallback progressive cadence if audio_b64 unavailable (e.g., offline)
+        const runTimedFallback = (msPerWord = 42) => {
+          let idx = 0;
+          const tick = () => {
+            if (sessionId !== state.syncSessionId) return resolve();
+            if (idx >= wordItems.length) {
+              revealAllInSegment();
+              return resolve();
+            }
+            const item = wordItems[idx];
+            if (item.lineEl.classList.contains('pending')) {
+              item.lineEl.classList.remove('pending');
+              scrollStreamIfNearBottom();
+            }
+            if (idx > 0) wordItems[idx - 1].span.classList.remove('speaking-word');
+            item.span.classList.add('revealed', 'speaking-word');
+            idx++;
+            setTimeout(tick, msPerWord);
+          };
+          tick();
+        };
+
+        if (!seg.audio_b64) {
+          return runTimedFallback(26);
+        }
+
+        const blobUrl = base64ToBlobUrl(seg.audio_b64);
+        let rafId = null;
+        let finished = false;
+
+        const finishSegment = () => {
+          if (finished) return;
+          finished = true;
+          if (rafId) cancelAnimationFrame(rafId);
+          syncAudio.onended = null;
+          syncAudio.onerror = null;
+          URL.revokeObjectURL(blobUrl);
+          if (sessionId === state.syncSessionId) {
+            revealAllInSegment();
+          }
+          resolve();
+        };
+
+        const renderFrame = () => {
+          if (finished || sessionId !== state.syncSessionId) {
+            return finishSegment();
+          }
+          // +30ms perceptual sync lead so word light-up and phoneme onset feel simultaneous
+          const nowMs = syncAudio.currentTime * 1000 + 30;
+          let scrolledThisFrame = false;
+
+          for (let i = 0; i < wordItems.length; i++) {
+            const w = wordItems[i];
+            if (nowMs >= w.startMs) {
+              if (w.lineEl.classList.contains('pending')) {
+                w.lineEl.classList.remove('pending');
+                if (!scrolledThisFrame) {
+                  scrollStreamIfNearBottom();
+                  scrolledThisFrame = true;
+                }
+              }
+              w.span.classList.add('revealed');
+              const isCurrent = nowMs <= w.endMs + 75 && (i === wordItems.length - 1 || nowMs < wordItems[i + 1].startMs + 25);
+              w.span.classList.toggle('speaking-word', isCurrent);
+            }
+          }
+          rafId = requestAnimationFrame(renderFrame);
+        };
+
+        syncAudio.onended = finishSegment;
+        syncAudio.onerror = () => {
+          URL.revokeObjectURL(blobUrl);
+          finished = true;
+          if (rafId) cancelAnimationFrame(rafId);
+          runTimedFallback(36);
+        };
+
+        syncAudio.src = blobUrl;
+        syncAudio.volume = 1.0;
+        const playPromise = syncAudio.play();
+        if (playPromise && playPromise.then) {
+          playPromise.then(() => {
+            if (sessionId !== state.syncSessionId) return finishSegment();
+            rafId = requestAnimationFrame(renderFrame);
+          }).catch(() => {
+            URL.revokeObjectURL(blobUrl);
+            finished = true;
+            runTimedFallback(34);
+          });
+        } else {
+          rafId = requestAnimationFrame(renderFrame);
+        }
+      });
+    }
+
+    // Progressive fast word stream when Voice Sync is muted
+    async function streamWordsSilent(markdown, proseEl, sessionId) {
+      const { fragment, wordItems } = buildWordSyncedFragment(markdown);
+      proseEl.innerHTML = '';
+      proseEl.appendChild(fragment);
+
+      for (let i = 0; i < wordItems.length; i++) {
+        if (sessionId !== state.syncSessionId) return;
+        const w = wordItems[i];
+        if (w.lineEl.classList.contains('pending')) {
+          w.lineEl.classList.remove('pending');
+          scrollStreamIfNearBottom();
+        }
+        w.span.classList.add('revealed');
+        if (i % 2 === 0) {
+          await new Promise((r) => setTimeout(r, 22));
+        }
+      }
+    }
+
+    function stopActiveSync(revealRemaining = true) {
+      state.syncSessionId++;
+      try {
+        syncAudio.pause();
+        syncAudio.removeAttribute('src');
+      } catch (_e) {}
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (revealRemaining && state.activeSyncTurn) {
+        const { proseEl, fullReply, liveTagEl, sourcesEl } = state.activeSyncTurn;
+        if (fullReply && proseEl) {
+          proseEl.innerHTML = renderMarkdown(fullReply);
+        }
+        if (liveTagEl) liveTagEl.remove();
+        if (sourcesEl) sourcesEl.classList.remove('hidden');
+        state.activeSyncTurn = null;
+      }
+      setSpeakingUI(false);
+    }
+
+    // =========================================================================
+    // 5-Axis SVG Hardware Radar Generator
     // =========================================================================
     function buildRadarSvg(scoresA, scoresB = null) {
       const axes = [
@@ -1933,6 +2211,7 @@
 
       el('compareForm').addEventListener('submit', (e) => {
         e.preventDefault();
+        unlockAudioOnGesture();
         const pa = el('compInputA').value.trim();
         const pb = el('compInputB').value.trim();
         if (pa && pb) submitPrompt(`Compare ${pa} vs ${pb}`);
@@ -1940,7 +2219,7 @@
     }
 
     // =========================================================================
-    // Right Stream Rendering
+    // Right Stream & Synchronized Turn Lifecycle
     // =========================================================================
     function renderWelcomeIndex() {
       const inner = el('streamInner');
@@ -1956,7 +2235,7 @@
           <div class="welcome-kicker">Hardware Intelligence Terminal</div>
           <h2 class="welcome-heading">Inspect specifications, launch pricing, and real-world suitability.</h2>
           <p class="welcome-copy">
-            Query any smartphone to populate its hardware telemetry and 5-axis radar on the left, then ask follow-up questions on thermals, camera sensors, or head-to-head trade-offs.
+            Query any smartphone to populate its hardware telemetry and 5-axis radar on the left, while the analyst speaks and streams insights word-by-word on the right.
           </p>
           <div class="index-list">
             ${starters.map(([q, spec]) => `
@@ -1971,7 +2250,10 @@
       `;
 
       inner.querySelectorAll('.index-item').forEach((btn) => {
-        btn.addEventListener('click', () => submitPrompt(btn.dataset.query));
+        btn.addEventListener('click', () => {
+          unlockAudioOnGesture();
+          submitPrompt(btn.dataset.query);
+        });
       });
     }
 
@@ -1986,26 +2268,24 @@
       scrollStreamBottom();
     }
 
-    function appendAiTurn({ reply, usedWeb, sources, isError }) {
+    function createStreamingAiTurn() {
       const div = document.createElement('div');
       div.className = 'turn-ai';
       const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      const srcHtml = (!isError && sources && sources.length)
-        ? `<div class="sources-line">${sources.map((s) =>
-            `<a class="source-link" href="${escapeHtml(s.url || '#')}" target="_blank" rel="noopener">${escapeHtml((s.title || 'Source').slice(0, 44))}</a>`
-          ).join('')}</div>`
-        : '';
-
       div.innerHTML = `
         <div class="turn-ai-head">
           <div class="turn-ai-meta">
-            <span class="turn-ai-author" style="${isError ? 'color:var(--signal-err)' : ''}">${isError ? 'System Notice' : 'SpecDeck'}</span>
-            ${usedWeb && !isError ? '<span class="verified-tag">● Web Grounded</span>' : ''}
+            <span class="turn-ai-author">SpecDeck</span>
+            <span class="verified-slot"></span>
+            <span class="live-voice-tag">
+              <span class="eq-bars inline"><span></span><span></span><span></span></span>
+              <span class="live-voice-text">Preparing…</span>
+            </span>
             <span class="tabular">${ts}</span>
           </div>
-          ${!isError ? `<div class="turn-actions">
-            <button type="button" class="micro-icon-btn speak-turn-btn" title="Listen">
+          <div class="turn-actions">
+            <button type="button" class="micro-icon-btn speak-turn-btn" title="Replay with synchronized voice">
               <svg class="icon" viewBox="0 0 24 24">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -2017,20 +2297,45 @@
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
             </button>
-          </div>` : ''}
+          </div>
         </div>
-        <div class="prose" style="${isError ? 'color:#fda4af' : ''}">${renderMarkdown(reply)}</div>
-        ${srcHtml}
+        <div class="prose">
+          <div class="voice-prep-indicator">
+            <span class="eq-bars inline"><span></span><span></span><span></span></span>
+            <span>Analyzing hardware telemetry…</span>
+          </div>
+        </div>
+        <div class="sources-line hidden"></div>
       `;
 
-      if (!isError) {
-        div.querySelector('.speak-turn-btn')?.addEventListener('click', () => speakText(reply));
-        div.querySelector('.copy-turn-btn')?.addEventListener('click', () => {
-          navigator.clipboard.writeText(reply);
-          showToast('Copied analyst response');
-        });
-      }
+      el('streamInner').appendChild(div);
+      scrollStreamBottom();
 
+      return {
+        rootEl: div,
+        proseEl: div.querySelector('.prose'),
+        prepEl: div.querySelector('.voice-prep-indicator'),
+        verifiedSlotEl: div.querySelector('.verified-slot'),
+        liveTagEl: div.querySelector('.live-voice-tag'),
+        liveTextEl: div.querySelector('.live-voice-text'),
+        sourcesEl: div.querySelector('.sources-line'),
+        speakBtn: div.querySelector('.speak-turn-btn'),
+        copyBtn: div.querySelector('.copy-turn-btn'),
+        fullReply: ''
+      };
+    }
+
+    function appendErrorTurn(message) {
+      const div = document.createElement('div');
+      div.className = 'turn-ai';
+      div.innerHTML = `
+        <div class="turn-ai-head">
+          <div class="turn-ai-meta">
+            <span class="turn-ai-author" style="color:var(--signal-err)">System Notice</span>
+          </div>
+        </div>
+        <div class="prose" style="color:#fda4af">${renderMarkdown(message)}</div>
+      `;
       el('streamInner').appendChild(div);
       scrollStreamBottom();
     }
@@ -2040,63 +2345,118 @@
       feed.scrollTop = feed.scrollHeight;
     }
 
-    // =========================================================================
-    // Neural Voice Output (Backend Edge-TTS Stream + Web Speech Fallback)
-    // =========================================================================
-    function setSpeakingUI(active) {
-      el('voiceBtn').classList.toggle('speaking', active);
+    function scrollStreamIfNearBottom() {
+      const feed = el('streamFeed');
+      if (feed.scrollHeight - feed.scrollTop - feed.clientHeight < 140) {
+        feed.scrollTop = feed.scrollHeight;
+      }
     }
 
-    function stopAudio() {
-      if (state.audioPlayer) {
-        state.audioPlayer.pause();
-        state.audioPlayer.src = '';
-        state.audioPlayer = null;
-      }
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      setSpeakingUI(false);
-    }
+    // Replay any completed AI turn with word-by-word voice sync!
+    async function replayTurnWithVoiceSync(turnObj) {
+      if (!turnObj || !turnObj.fullReply) return;
+      unlockAudioOnGesture();
+      stopActiveSync(true);
 
-    async function speakText(text) {
-      stopAudio();
+      const sessionId = ++state.syncSessionId;
+      state.activeSyncTurn = turnObj;
       setSpeakingUI(true);
+      turnObj.proseEl.innerHTML = `
+        <div class="voice-prep-indicator">
+          <span class="eq-bars inline"><span></span><span></span><span></span></span>
+          <span>Preparing voice sync…</span>
+        </div>
+      `;
+
+      const segQueue = [];
+      let streamFinished = false;
+      let wakeConsumer = null;
+
+      const consumerPromise = (async () => {
+        let firstSeg = true;
+        while (sessionId === state.syncSessionId) {
+          if (segQueue.length > 0) {
+            const seg = segQueue.shift();
+            if (firstSeg) {
+              turnObj.proseEl.innerHTML = '';
+              if (turnObj.liveTextEl) turnObj.liveTextEl.textContent = 'Speaking';
+              firstSeg = false;
+            }
+            await playSegmentInLockstep(seg, turnObj.proseEl, sessionId);
+          } else if (streamFinished) {
+            break;
+          } else {
+            await new Promise((r) => { wakeConsumer = r; });
+          }
+        }
+      })();
+
       try {
-        const res = await fetch('/api/tts', {
+        const res = await fetch('/api/tts/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice: state.voiceId })
+          body: JSON.stringify({ text: turnObj.fullReply, voice: state.voiceId })
         });
-        if (!res.ok) throw new Error('TTS fallback');
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        state.audioPlayer = audio;
-        audio.onended = () => {
-          URL.revokeObjectURL(url);
-          setSpeakingUI(false);
-        };
-        audio.onerror = () => {
-          URL.revokeObjectURL(url);
-          setSpeakingUI(false);
-        };
-        await audio.play();
-      } catch (_err) {
-        if ('speechSynthesis' in window) {
-          const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`]/g, '').slice(0, 900));
-          utter.onend = () => setSpeakingUI(false);
-          utter.onerror = () => setSpeakingUI(false);
-          window.speechSynthesis.speak(utter);
-        } else {
-          setSpeakingUI(false);
+        if (!res.ok || !res.body) throw new Error('Stream unavailable');
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (sessionId === state.syncSessionId) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const ln of lines) {
+            if (!ln.trim()) continue;
+            const evt = JSON.parse(ln);
+            if (evt.type === 'segment') {
+              segQueue.push(evt);
+              if (wakeConsumer) { const w = wakeConsumer; wakeConsumer = null; w(); }
+            }
+          }
         }
+      } catch (_err) {
+        if (sessionId === state.syncSessionId) {
+          turnObj.proseEl.innerHTML = renderMarkdown(turnObj.fullReply);
+        }
+      } finally {
+        streamFinished = true;
+        if (wakeConsumer) { const w = wakeConsumer; wakeConsumer = null; w(); }
+      }
+
+      await consumerPromise;
+      if (sessionId === state.syncSessionId) {
+        if (turnObj.liveTagEl) turnObj.liveTagEl.remove();
+        if (turnObj.sourcesEl && turnObj.sourcesEl.innerHTML) turnObj.sourcesEl.classList.remove('hidden');
+        state.activeSyncTurn = null;
+        setSpeakingUI(false);
       }
     }
 
     // =========================================================================
-    // API Communication
+    // Voice Button UI & State Updates
     // =========================================================================
+    function syncVoiceToggleIcon() {
+      const btn = el('voiceBtn');
+      const spk = btn.querySelector('.speaker-svg');
+      const mut = btn.querySelector('.mute-svg');
+      const lbl = el('voiceStateLabel');
+      btn.classList.toggle('active', state.autoVoice);
+      spk.style.display = state.autoVoice ? '' : 'none';
+      mut.style.display = state.autoVoice ? 'none' : '';
+      lbl.textContent = state.autoVoice ? 'SYNC' : 'MUTE';
+    }
+
+    function setSpeakingUI(speaking) {
+      const btn = el('voiceBtn');
+      btn.classList.toggle('speaking', speaking);
+      el('voiceStateLabel').textContent = speaking ? 'STOP' : (state.autoVoice ? 'SYNC' : 'MUTE');
+      if (!speaking) syncVoiceToggleIcon();
+    }
+
     function updateStatusUI(busy, text, hasKey = state.hasApiKey) {
       const dot = el('statusDot');
       dot.className = 'status-dot' + (busy ? ' busy' : (!hasKey ? ' warn' : ''));
@@ -2125,6 +2485,7 @@
         state.primaryCard = data.demo_primary;
         state.compareCard = data.demo_compare;
 
+        syncVoiceToggleIcon();
         populateSettingsControls();
         renderDeck();
         renderWelcomeIndex();
@@ -2134,6 +2495,9 @@
       }
     }
 
+    // =========================================================================
+    // Main Streaming Chat Submission (Zero-Delay Voice + Word-by-Word Lockstep)
+    // =========================================================================
     async function submitPrompt(prompt) {
       if (!prompt || state.busy) return;
 
@@ -2143,65 +2507,179 @@
         return;
       }
 
+      // Stop any ongoing speech cleanly before starting the new turn
+      stopActiveSync(true);
+
       state.busy = true;
+      const sessionId = ++state.syncSessionId;
+      const useVoiceThisTurn = state.autoVoice;
+
       appendUserTurn(prompt);
+      const turnObj = createStreamingAiTurn();
+      state.activeSyncTurn = turnObj;
+
       const t0 = performance.now();
       updateStatusUI(true, 'QUERYING TELEMETRY…');
 
+      const segQueue = [];
+      let streamFinished = false;
+      let wakeConsumer = null;
+
+      // Consumer coroutine: plays each streamed segment in order & reveals words in real time
+      const consumerPromise = (async () => {
+        if (!useVoiceThisTurn) return;
+        let firstSeg = true;
+        while (sessionId === state.syncSessionId) {
+          if (segQueue.length > 0) {
+            const seg = segQueue.shift();
+            if (firstSeg) {
+              turnObj.proseEl.innerHTML = '';
+              if (turnObj.liveTextEl) turnObj.liveTextEl.textContent = 'Speaking';
+              setSpeakingUI(true);
+              firstSeg = false;
+            }
+            await playSegmentInLockstep(seg, turnObj.proseEl, sessionId);
+          } else if (streamFinished) {
+            break;
+          } else {
+            await new Promise((r) => { wakeConsumer = r; });
+          }
+        }
+      })();
+
       try {
-        const res = await fetch('/api/chat', {
+        const res = await fetch('/api/chat/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: prompt,
-            use_web_search: state.liveWeb
+            use_web_search: state.liveWeb,
+            voice_sync: useVoiceThisTurn,
+            voice: state.voiceId
           })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Request failed');
 
-        state.previewMode = false;
-        if (data.updated_card) state.primaryCard = data.updated_card;
-        if (data.updated_compare_card) {
-          state.compareCard = data.updated_compare_card;
-          setActiveTab('compare');
-        } else if (data.updated_card && !data.active_compare) {
-          state.compareCard = null;
+        if (!res.ok || !res.body) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson.detail || 'Request failed');
         }
 
-        if (data.model_used) state.model = data.model_used;
-        renderDeck();
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let receivedSegments = 0;
 
-        const ctxParts = [state.primaryCard?.name].filter(Boolean);
-        if (state.compareCard && state.activeTab === 'compare') {
-          ctxParts.push('vs ' + state.compareCard.name);
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const ln of lines) {
+            if (!ln.trim()) continue;
+            const evt = JSON.parse(ln);
+
+            if (evt.type === 'error') {
+              throw new Error(evt.detail || 'Groq API error');
+            }
+
+            if (evt.type === 'meta') {
+              turnObj.fullReply = evt.full_reply || '';
+              state.previewMode = false;
+
+              if (evt.updated_card) state.primaryCard = evt.updated_card;
+              if (evt.updated_compare_card) {
+                state.compareCard = evt.updated_compare_card;
+                setActiveTab('compare');
+              } else if (evt.updated_card && !evt.active_compare) {
+                state.compareCard = null;
+              }
+              if (evt.model_used) state.model = evt.model_used;
+              renderDeck();
+
+              const ctxParts = [state.primaryCard?.name].filter(Boolean);
+              if (state.compareCard && state.activeTab === 'compare') {
+                ctxParts.push('vs ' + state.compareCard.name);
+              }
+              el('activeContextLabel').textContent = ctxParts.join(' ') || 'Active';
+
+              if (evt.used_web_search) {
+                turnObj.verifiedSlotEl.innerHTML = '<span class="verified-tag">● Web Grounded</span>';
+              }
+              if (evt.search_sources && evt.search_sources.length) {
+                turnObj.sourcesEl.innerHTML = evt.search_sources.map((s) =>
+                  `<a class="source-link" href="${escapeHtml(s.url || '#')}" target="_blank" rel="noopener">${escapeHtml((s.title || 'Source').slice(0, 44))}</a>`
+                ).join('');
+              }
+
+              turnObj.speakBtn.addEventListener('click', () => replayTurnWithVoiceSync(turnObj));
+              turnObj.copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(turnObj.fullReply);
+                showToast('Copied analyst response');
+              });
+
+              const ms = Math.round(performance.now() - t0);
+              const tok = evt.tokens_used ? `${evt.tokens_used} TOK · ` : '';
+              state.busy = false;
+              updateStatusUI(false, `${tok}${ms}ms`);
+
+              if (useVoiceThisTurn) {
+                const prepSpan = turnObj.prepEl?.querySelector('span:last-child');
+                if (prepSpan) prepSpan.textContent = 'Starting synchronized voice…';
+              } else {
+                if (turnObj.liveTagEl) turnObj.liveTagEl.remove();
+                await streamWordsSilent(turnObj.fullReply, turnObj.proseEl, sessionId);
+                if (turnObj.sourcesEl.innerHTML) turnObj.sourcesEl.classList.remove('hidden');
+              }
+            } else if (evt.type === 'segment') {
+              receivedSegments++;
+              segQueue.push(evt);
+              if (wakeConsumer) {
+                const w = wakeConsumer;
+                wakeConsumer = null;
+                w();
+              }
+            }
+          }
         }
-        el('activeContextLabel').textContent = ctxParts.join(' ') || 'Active';
 
-        appendAiTurn({
-          reply: data.chat_reply,
-          usedWeb: data.used_web_search,
-          sources: data.search_sources,
-          isError: false
-        });
+        streamFinished = true;
+        if (wakeConsumer) {
+          const w = wakeConsumer;
+          wakeConsumer = null;
+          w();
+        }
 
-        const ms = Math.round(performance.now() - t0);
-        const tok = data.tokens_used ? `${data.tokens_used} TOK · ` : '';
-        state.busy = false;
-        updateStatusUI(false, `${tok}${ms}ms`);
-
-        if (state.autoVoice) {
-          speakText(data.chat_reply);
+        if (useVoiceThisTurn) {
+          if (receivedSegments === 0 && turnObj.fullReply && sessionId === state.syncSessionId) {
+            await streamWordsSilent(turnObj.fullReply, turnObj.proseEl, sessionId);
+          } else {
+            await consumerPromise;
+          }
+          if (sessionId === state.syncSessionId) {
+            if (turnObj.liveTagEl) turnObj.liveTagEl.remove();
+            if (turnObj.sourcesEl.innerHTML) turnObj.sourcesEl.classList.remove('hidden');
+            state.activeSyncTurn = null;
+            setSpeakingUI(false);
+          }
+        } else {
+          state.activeSyncTurn = null;
         }
       } catch (err) {
         state.busy = false;
-        appendAiTurn({ reply: String(err.message || err), isError: true });
+        streamFinished = true;
+        if (wakeConsumer) { const w = wakeConsumer; wakeConsumer = null; w(); }
+        turnObj.rootEl.remove();
+        state.activeSyncTurn = null;
+        setSpeakingUI(false);
+        appendErrorTurn(String(err.message || err));
         updateStatusUI(false, 'READY');
       }
     }
 
     // =========================================================================
-    // Settings Sheet Interactions
+    // Settings Sheet & Event Bindings
     // =========================================================================
     function populateSettingsControls() {
       const mSel = el('modelSelect');
@@ -2237,14 +2715,12 @@
       renderDeck();
     }
 
-    // =========================================================================
-    // Event Listeners
-    // =========================================================================
     el('tabSingle').addEventListener('click', () => setActiveTab('single'));
     el('tabCompare').addEventListener('click', () => setActiveTab('compare'));
 
     el('chatForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      unlockAudioOnGesture();
       const val = el('chatInput').value.trim();
       if (!val) return;
       el('chatInput').value = '';
@@ -2253,19 +2729,27 @@
 
     el('omniForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      unlockAudioOnGesture();
       const val = el('omniInput').value.trim();
       if (!val) return;
       el('omniInput').value = '';
       submitPrompt(val);
     });
 
-    el('voiceBtn').addEventListener('click', () => {
+    el('voiceBtn').addEventListener('click', async () => {
+      unlockAudioOnGesture();
       if (el('voiceBtn').classList.contains('speaking')) {
-        stopAudio();
+        stopActiveSync(true);
+        showToast('Stopped voice — full response shown');
       } else {
         state.autoVoice = !state.autoVoice;
-        el('voiceBtn').classList.toggle('active', state.autoVoice);
-        showToast(state.autoVoice ? 'Auto-Voice enabled' : 'Auto-Voice muted');
+        syncVoiceToggleIcon();
+        fetch('/api/voice-toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auto_voice: state.autoVoice })
+        }).catch(() => {});
+        showToast(state.autoVoice ? 'Voice + Word Sync ON' : 'Voice muted (text stream only)');
       }
     });
 
@@ -2311,7 +2795,7 @@
         populateSettingsControls();
         if (key) el('apiKeyInput').value = key;
         el('modalFeedback').textContent = `Verified — ${data.models.length} models active.`;
-      } catch (err) {
+      } catch (_err) {
         el('modalFeedback').textContent = 'Verification failed: check key.';
       }
     });
@@ -2337,7 +2821,7 @@
       state.liveWeb = data.live_web;
       state.autoVoice = data.auto_voice;
       state.autostart = data.autostart;
-      el('voiceBtn').classList.toggle('active', state.autoVoice);
+      syncVoiceToggleIcon();
       el('apiKeyInput').value = '';
       updateStatusUI(false, state.hasApiKey ? 'ENGINE READY' : 'API KEY NEEDED');
       closeSettings();
@@ -2345,7 +2829,7 @@
     });
 
     el('resetThreadBtn').addEventListener('click', async () => {
-      stopAudio();
+      stopActiveSync(false);
       await fetch('/api/reset', { method: 'POST' });
       state.previewMode = true;
       const st = await (await fetch('/api/state')).json();
@@ -2376,7 +2860,6 @@
       URL.revokeObjectURL(a.href);
     });
 
-    // Global Keyboard Shortcuts (⌘K / Ctrl+K for Omnibar, Ctrl+, for Settings, Esc to close)
     window.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();

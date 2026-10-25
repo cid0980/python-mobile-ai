@@ -1,12 +1,15 @@
 """
 app.py — SpecDeck Hardware Intelligence Studio
-Backend API (FastAPI + Groq + Live Web Grounding + Neural Edge-TTS)
+Backend API (FastAPI + Groq + Live Web Grounding + Real-Time Word-Synced Neural TTS)
 + Standalone Native Desktop App Window Launcher (Windows & Linux).
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
+from contextlib import asynccontextmanager
+import json
 import os
 import platform
 import shutil
@@ -17,12 +20,12 @@ import threading
 import time
 import webbrowser
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response, StreamingResponse
 from pydantic import BaseModel
 
 from ai_engine import (
@@ -37,12 +40,27 @@ from ai_engine import (
     save_api_key_to_env,
 )
 from autostart_manager import disable_autostart, enable_autostart, is_autostart_enabled
-from voice_engine import DEFAULT_NEURAL_VOICE, VOICE_PRESETS, synthesize_mp3_bytes
+from voice_engine import (
+    DEFAULT_NEURAL_VOICE,
+    VOICE_PRESETS,
+    resolve_fast_voice,
+    stream_synchronized_segments,
+    synthesize_mp3_bytes,
+    warm_tts_engine,
+)
 
 APP_DIR = Path(__file__).resolve().parent
 INDEX_HTML_PATH = APP_DIR / "static" / "index.html"
 
-app = FastAPI(title="SpecDeck Hardware Intelligence", version="2.0.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    # Pre-warm Edge Neural TTS WebSocket/DRM token in background for sub-500ms first word!
+    asyncio.create_task(warm_tts_engine())
+    yield
+
+
+app = FastAPI(title="SpecDeck Hardware Intelligence", version="2.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,9 +75,10 @@ class AppRuntimeState:
         saved_key = get_saved_api_key()
         saved_model = load_env_setting("GROQ_MODEL", DEFAULT_MODELS[0]) or DEFAULT_MODELS[0]
         self.assistant = SpecDeckAssistant(api_key=saved_key, model=saved_model)
-        self.voice_id: str = load_env_setting("VOICE_ID", DEFAULT_NEURAL_VOICE) or DEFAULT_NEURAL_VOICE
+        self.voice_id: str = resolve_fast_voice(load_env_setting("VOICE_ID", DEFAULT_NEURAL_VOICE))
         self.live_web: bool = load_env_setting("LIVE_WEB_SEARCH", "1") != "0"
-        self.auto_voice: bool = load_env_setting("AUTO_VOICE", "0") == "1"
+        # Default VOICE_SYNC=1 (ON) so live word-by-word voice sync works out of the box
+        self.auto_voice: bool = load_env_setting("VOICE_SYNC", "1") != "0"
         self.models: List[str] = list(DEFAULT_MODELS)
         if saved_model not in self.models:
             self.models.insert(0, saved_model)
@@ -74,6 +93,8 @@ STATE = AppRuntimeState()
 class ChatRequest(BaseModel):
     message: str
     use_web_search: bool = True
+    voice_sync: bool = True
+    voice: Optional[str] = None
 
 
 class VerifyKeyRequest(BaseModel):
@@ -85,8 +106,12 @@ class SettingsUpdateRequest(BaseModel):
     model: str = DEFAULT_MODELS[0]
     voice_id: str = DEFAULT_NEURAL_VOICE
     live_web: bool = True
-    auto_voice: bool = False
+    auto_voice: bool = True
     autostart: bool = False
+
+
+class VoiceToggleRequest(BaseModel):
+    auto_voice: bool
 
 
 class TTSRequest(BaseModel):
@@ -145,6 +170,99 @@ def chat_turn(req: ChatRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@app.post("/api/chat/stream")
+async def chat_turn_stream(req: ChatRequest) -> StreamingResponse:
+    """
+    Streams NDJSON events:
+      1. `meta`: Hardware card updates, sources, token telemetry, and full fallback text.
+      2. `segment` (0..N-1): Base64 MP3 + exact `WordBoundary` millisecond timings so the UI
+         reveals each word in real-time lockstep with the neural voice.
+      3. `done`: Completion marker.
+    """
+    prompt = req.message.strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Empty prompt.")
+
+    async def event_generator() -> AsyncIterator[str]:
+        try:
+            res = await asyncio.to_thread(
+                STATE.assistant.send_message,
+                prompt,
+                req.use_web_search,
+            )
+        except Exception as exc:
+            err_evt = {"type": "error", "detail": str(exc)}
+            yield json.dumps(err_evt) + "\n"
+            return
+
+        meta_evt = {
+            "type": "meta",
+            "full_reply": res.chat_reply,
+            "updated_card": res.updated_card.to_dict() if res.updated_card else None,
+            "updated_compare_card": (
+                res.updated_compare_card.to_dict() if res.updated_compare_card else None
+            ),
+            "active_compare": (
+                STATE.assistant.compare_card.to_dict() if STATE.assistant.compare_card else None
+            ),
+            "used_web_search": res.used_web_search,
+            "search_sources": res.search_sources,
+            "model_used": res.model_used,
+            "tokens_used": res.tokens_used,
+        }
+        yield json.dumps(meta_evt) + "\n"
+
+        if req.voice_sync:
+            voice_to_use = req.voice or STATE.voice_id
+            async for seg in stream_synchronized_segments(res.chat_reply, voice=voice_to_use):
+                seg_evt = {"type": "segment", **seg}
+                yield json.dumps(seg_evt) + "\n"
+
+        yield json.dumps({"type": "done"}) + "\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="application/x-ndjson",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@app.post("/api/tts/stream")
+async def synthesize_speech_stream(req: TTSRequest) -> StreamingResponse:
+    """Streams segmented MP3 + WordBoundary events for replaying any message in sync."""
+    text = req.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Empty speech text.")
+
+    async def seg_gen() -> AsyncIterator[str]:
+        voice_to_use = req.voice or STATE.voice_id
+        async for seg in stream_synchronized_segments(text, voice=voice_to_use):
+            yield json.dumps({"type": "segment", **seg}) + "\n"
+        yield json.dumps({"type": "done"}) + "\n"
+
+    return StreamingResponse(
+        seg_gen(),
+        media_type="application/x-ndjson",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@app.post("/api/voice-toggle")
+def toggle_voice_sync(req: VoiceToggleRequest) -> Dict[str, Any]:
+    STATE.auto_voice = req.auto_voice
+    if STATE.assistant.api_key:
+        save_api_key_to_env(
+            STATE.assistant.api_key,
+            model=STATE.assistant.model,
+            extra={
+                "VOICE_ID": STATE.voice_id,
+                "LIVE_WEB_SEARCH": "1" if STATE.live_web else "0",
+                "VOICE_SYNC": "1" if STATE.auto_voice else "0",
+            },
+        )
+    return {"ok": True, "auto_voice": STATE.auto_voice}
+
+
 @app.post("/api/verify-key")
 def verify_key(req: VerifyKeyRequest) -> Dict[str, Any]:
     candidate = (req.api_key or "").strip() or STATE.assistant.api_key.strip()
@@ -176,7 +294,7 @@ def update_settings(req: SettingsUpdateRequest) -> Dict[str, Any]:
         extra={
             "VOICE_ID": STATE.voice_id,
             "LIVE_WEB_SEARCH": "1" if STATE.live_web else "0",
-            "AUTO_VOICE": "1" if STATE.auto_voice else "0",
+            "VOICE_SYNC": "1" if STATE.auto_voice else "0",
         },
     )
 
@@ -312,6 +430,7 @@ def launch_desktop_app() -> None:
             f"--app={url}",
             "--window-size=1380,860",
             f"--user-data-dir={profile_dir}",
+            "--autoplay-policy=no-user-gesture-required",
             "--no-first-run",
             "--no-default-browser-check",
         ]
@@ -325,7 +444,6 @@ def launch_desktop_app() -> None:
         except Exception:
             pass
 
-    # Fallback: open in default browser and keep local engine alive until Ctrl+C
     webbrowser.open(url)
     print("[SpecDeck] Opened in default browser. Press Ctrl+C to stop SpecDeck.")
     try:
@@ -342,7 +460,6 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8000, help="Bind port in --server mode")
     args = parser.parse_args()
 
-    # Pre-warm dynamic Groq model list in background if key exists
     if STATE.assistant.api_key:
         def _warm_models() -> None:
             try:
