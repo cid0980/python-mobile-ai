@@ -27,12 +27,27 @@ EXCLUDED_MODEL_KEYWORDS = (
     "whisper", "guard", "safeguard", "tts", "orpheus", "embed", "vision-preview", "playai",
 )
 
+PLACEHOLDER_PATTERNS = re.compile(
+    r"(?:\$X{2,}|\u20b9X[\dX,]*|\bTBD\b|\bN/A\b|\bLorem\s+ipsum\b|\ufffd)",
+    flags=re.I,
+)
+
+
+def _sanitize_text(val: Any) -> str:
+    if val is None:
+        return ""
+    s = str(val)
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
+    s = s.replace('\\"', '"').replace("\\'", "'")
+    s = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffd]", "", s)
+    s = PLACEHOLDER_PATTERNS.sub("", s)
+    s = re.sub(r"[ \t]{2,}", " ", s)
+    return s.strip()
+
 
 def _clean_spec_val(val: Any, fallback: str = "—") -> str:
-    if val is None:
-        return fallback
-    s = str(val).strip()
-    s = s.replace('\\"', '"').replace("\\'", "'").strip()
+    s = _sanitize_text(val)
+    s = s.replace("\n", " ").strip(" ,;-")
     return s if s else fallback
 
 
@@ -84,12 +99,12 @@ class PhoneCardData:
                 lines.append(f"- **{k.capitalize()}:** {v:.1f} / 10")
 
         if self.good_for:
-            lines.extend(["", "## Ideal Use Cases"])
+            lines.extend(["", "## Primary Strengths"])
             for item in self.good_for:
                 lines.append(f"- {item}")
 
         if self.skip_if:
-            lines.extend(["", "## Trade-offs"])
+            lines.extend(["", "## Trade-offs to Consider"])
             for item in self.skip_if:
                 lines.append(f"- {item}")
 
@@ -102,7 +117,7 @@ class PhoneCardData:
 DEMO_PHONE_CARD = PhoneCardData(
     name="OnePlus 13",
     brand="OnePlus",
-    tagline="6000mAh Silicon-Carbon Flagship · Snapdragon 8 Elite & 100W SuperVOOC",
+    tagline="6000 mAh Silicon-Carbon Flagship · Snapdragon 8 Elite & 100W SuperVOOC",
     launch_date="Jan 2025",
     status="Available",
     price_estimate="$899 / ₹69,999",
@@ -118,21 +133,21 @@ DEMO_PHONE_CARD = PhoneCardData(
     },
     scores={"performance": 9.7, "camera": 9.0, "display": 9.5, "battery": 9.7, "value": 9.3},
     good_for=[
-        "Two-day 6000mAh endurance with 36-minute 100W full charge",
-        "Sustained 120fps gaming with dual-cryo vapor chamber cooling",
-        "Flagship silicon priced $300–$400 under Ultra competitors",
+        "Two-day 6000 mAh Si/C battery endurance with 100W wired and 50W wireless charging",
+        "Sustained 120Hz QHD+ gaming powered by 3nm Snapdragon 8 Elite silicon",
+        "$899 / ₹69,999 retail pricing — $300 below $1,199 flagship rivals",
     ],
     skip_if=[
-        "Need 5x–10x optical periscope zoom for distant subjects",
-        "Require 7 years of major OS version upgrades",
+        "3x Triprism telephoto lens instead of a 5x optical periscope module",
+        "4 years of major Android OS updates rather than a 7-year policy",
     ],
-    verdict_one_liner="High-value flagship pairing Snapdragon 8 Elite speed with class-leading 6000mAh battery life and 100W charging.",
+    verdict_one_liner="At $899 / ₹69,999, OnePlus 13 pairs Snapdragon 8 Elite performance with a 6000 mAh Si/C battery and 100W SuperVOOC charging.",
 )
 
 DEMO_COMPARE_CARD = PhoneCardData(
     name="iPhone 16 Pro Max",
     brand="Apple",
-    tagline="6.9-inch Grade 5 Titanium Flagship · A18 Pro & 4K120 Dolby Vision",
+    tagline='6.9" Grade 5 Titanium Flagship · Apple A18 Pro & 4K 120fps Dolby Vision',
     launch_date="Sep 2024",
     status="Available",
     price_estimate="$1,199 / ₹1,44,900",
@@ -148,15 +163,15 @@ DEMO_COMPARE_CARD = PhoneCardData(
     },
     scores={"performance": 9.8, "camera": 9.6, "display": 9.6, "battery": 9.3, "value": 8.3},
     good_for=[
-        "Industry-reference 4K 120fps ProRes & Dolby Vision video",
-        "Single-core speed, ecosystem longevity, and strong resale value",
-        "Consistent 5x tetraprism telephoto and skin-tone rendering",
+        "Reference-grade 4K 120fps video with 48MP Fusion OIS and 12MP 5x Tetraprism OIS",
+        "Class-leading single-core speed on 3nm Apple A18 Pro with 6+ years of iOS support",
+        "Grade 5 Titanium chassis with Ceramic Shield and 6-meter IP68 water resistance",
     ],
     skip_if=[
-        "Want ultra-fast 80W–100W wired charging speeds",
-        "Prefer high-RAM Android multitasking at a lower price",
+        "30W USB-C PD wired and 25W MagSafe wireless charging speeds",
+        "8GB LPDDR5X memory at a $1,199 / ₹1,44,900 starting price",
     ],
-    verdict_one_liner="Benchmark video and performance flagship with long-term iOS support and titanium build quality.",
+    verdict_one_liner="At $1,199 / ₹1,44,900, iPhone 16 Pro Max delivers benchmark Apple A18 Pro speed, 5x Tetraprism zoom, and Grade 5 Titanium durability.",
 )
 
 
@@ -172,18 +187,18 @@ class TurnResponse:
 
 
 SYSTEM_PROMPT = """You are SpecDeck, an authoritative smartphone hardware advisor (current year: 2026).
-Combine WEB SEARCH REFERENCE SNIPPETS with your complete smartphone hardware knowledge so every specification field is accurate and complete. Never write "Not specified" or "(details not listed)" for released phones; provide exact chipset, sensor MP, battery mAh + charging watts, OS policy, and launch price ($ USD / ₹ INR).
+Combine WEB SEARCH REFERENCE SNIPPETS with your complete smartphone hardware knowledge so every specification field is accurate and verified. Never output placeholder text or "Not specified" for released smartphones; provide exact chipset, camera sensors, battery mAh + charging wattage, OS support policy, and retail price ($ USD / ₹ INR).
 
-Respond with ONLY one valid JSON object matching this exact structure:
+Respond with ONLY one valid JSON object matching this exact schema:
 {
   "update_card": true,
   "phone_card": {
-    "name": "Full Official Phone Name",
-    "brand": "Brand",
-    "tagline": "Short hardware positioning line",
-    "launch_date": "Mon YYYY",
+    "name": "Samsung Galaxy S25 Ultra",
+    "brand": "Samsung",
+    "tagline": "6.9-inch Titanium Flagship · Snapdragon 8 Elite & 200MP Quad Telephoto",
+    "launch_date": "Jan 2025",
     "status": "Available",
-    "price_estimate": "$XXX / ₹XX,XXX",
+    "price_estimate": "$1,299 / ₹1,29,999",
     "specs": {
       "display": "",
       "processor": "",
@@ -194,20 +209,21 @@ Respond with ONLY one valid JSON object matching this exact structure:
       "os_updates": "",
       "build_extras": ""
     },
-    "scores": {"performance": 9.0, "camera": 8.8, "display": 9.0, "battery": 9.0, "value": 8.5},
-    "good_for": ["Strength 1", "Strength 2", "Strength 3"],
-    "skip_if": ["Trade-off 1", "Trade-off 2"],
-    "verdict_one_liner": "One sentence summary."
+    "scores": {"performance": 9.8, "camera": 9.7, "display": 9.7, "battery": 9.2, "value": 8.6},
+    "good_for": ["Verified strength 1", "Verified strength 2", "Verified strength 3"],
+    "skip_if": ["Verified trade-off 1", "Verified trade-off 2"],
+    "verdict_one_liner": "One sentence verdict citing exact price and key hardware."
   },
   "compare_card": null,
-  "chat_reply": "Concise natural response for the right panel."
+  "chat_reply": "Concise paragraph-structured response for the right-hand Advisor panel."
 }
 
 Rules:
-1. Whenever the user mentions, asks about, or searches for ANY specific phone (or asks for a phone recommendation — pick the #1 best phone for phone_card), ALWAYS set "update_card": true and populate "phone_card" completely so the left panel updates immediately.
+1. Whenever the user mentions, asks about, or searches for ANY specific phone (or asks for a recommendation — select the #1 best phone for phone_card), ALWAYS set "update_card": true and populate "phone_card" completely so the left panel updates immediately.
 2. When comparing two phones ("X vs Y" or "compare with Y"), populate BOTH "phone_card" (Phone A) and "compare_card" (Phone B) completely.
-3. Only set "update_card": false and "phone_card": null on casual greetings ("hello", "thanks") or follow-up questions about the exact phone ALREADY active on the left panel.
-4. Keep "chat_reply" concise, natural, and directly informative (3 to 5 clear sentences or brief bullets): give a quick contextual overview of what the user asked, highlight key real-world strengths/trade-offs, and give a clear recommendation without repeating the raw spec table."""
+3. Only set "update_card": false and "phone_card": null on casual greetings or follow-up questions about the exact phone ALREADY active on the left panel.
+4. Format "chat_reply" into 2 short paragraphs or 1 short paragraph plus 3 concise bullets separated by clean newlines. Answer the user's question directly without repeating the full spec table.
+5. Reconcile all numbers strictly: every price, battery capacity, wattage, display size, or camera megapixel figure mentioned in "chat_reply", "good_for", "skip_if", or "verdict_one_liner" MUST match the figures in "phone_card" and "compare_card" identically."""
 
 
 def get_saved_api_key() -> str:
@@ -361,7 +377,13 @@ def _try_parse_json_dict(raw_text: str) -> Optional[Dict[str, Any]]:
             if isinstance(data, dict):
                 return data
         except json.JSONDecodeError:
-            pass
+            repaired = re.sub(r",\s*([}\]])", r"\1", candidate)
+            try:
+                data = json.loads(repaired)
+                if isinstance(data, dict):
+                    return data
+            except json.JSONDecodeError:
+                pass
 
     return None
 
@@ -382,22 +404,22 @@ def _synthesize_fallback_summary(
 ) -> str:
     if primary and compare:
         return (
-            f"**{primary.name}** ({primary.price_estimate}) faces **{compare.name}** ({compare.price_estimate}) in this comparison.\n"
-            f"- **Performance & Display:** {primary.name} runs {primary.specs.get('processor', 'flagship silicon')}, while {compare.name} uses {compare.specs.get('processor', 'competing silicon')}.\n"
-            f"- **Battery & Camera:** {primary.name} offers {primary.specs.get('battery_charging', '—')}; {compare.name} counters with {compare.specs.get('rear_camera', '—')}.\n"
-            f"- **Bottom Line:** {primary.verdict_one_liner or ''} {compare.verdict_one_liner or ''}"
+            f"**{primary.name}** ({primary.price_estimate}) faces **{compare.name}** ({compare.price_estimate}) in this head-to-head comparison.\n\n"
+            f"- **Silicon & Display:** {primary.name} pairs {primary.specs.get('processor', '—')} with {primary.specs.get('display', '—')}, whereas {compare.name} uses {compare.specs.get('processor', '—')} and {compare.specs.get('display', '—')}.\n"
+            f"- **Battery & Camera:** {primary.name} provides {primary.specs.get('battery_charging', '—')}, while {compare.name} offers {compare.specs.get('rear_camera', '—')}.\n"
+            f"- **Verdict:** {primary.verdict_one_liner or ''} {compare.verdict_one_liner or ''}"
         ).strip()
     if primary:
-        strength = primary.good_for[0] if primary.good_for else primary.specs.get("processor", "")
+        strength = primary.good_for[0] if primary.good_for else primary.specs.get("processor", "—")
         tradeoff = primary.skip_if[0] if primary.skip_if else ""
-        extra = f" Keep in mind: {tradeoff.lower()}." if tradeoff else ""
+        extra = f" Key trade-off: {tradeoff}." if tradeoff else ""
         return (
-            f"**{primary.name}** ({primary.launch_date} · {primary.price_estimate}) is loaded in the datasheet on the left.\n"
-            f"- **Key Highlight:** {strength}.\n"
-            f"- **Core Hardware:** {primary.specs.get('display', '—')} paired with {primary.specs.get('processor', '—')} and {primary.specs.get('battery_charging', '—')}.\n"
+            f"**{primary.name}** ({primary.launch_date} · {primary.price_estimate}) is loaded in the hardware datasheet.\n\n"
+            f"- **Standout Capability:** {strength}.\n"
+            f"- **Core Platform:** {primary.specs.get('display', '—')}, {primary.specs.get('processor', '—')}, and {primary.specs.get('battery_charging', '—')}.\n"
             f"- **Verdict:** {primary.verdict_one_liner}{extra}"
         ).strip()
-    return "Ask about any smartphone model or head-to-head comparison to load its full specifications and image."
+    return "Select or search any smartphone model to load its verified hardware specifications, GSMArena studio image, and buying analysis."
 
 
 class SpecDeckAssistant:
@@ -488,9 +510,9 @@ class SpecDeckAssistant:
         elif updated_primary is not None and not is_compare_req:
             self.compare_card = None
 
-        raw_reply = str(payload.get("chat_reply") or "").strip()
-        raw_reply = raw_reply.replace('\\"', '"')
+        raw_reply = _sanitize_text(payload.get("chat_reply") or "")
         raw_reply = re.sub(r"\s+•\s+", "\n- ", raw_reply)
+        raw_reply = re.sub(r"\n{3,}", "\n\n", raw_reply).strip()
 
         if not raw_reply or _looks_like_raw_json(raw_reply):
             raw_reply = _synthesize_fallback_summary(
@@ -502,9 +524,9 @@ class SpecDeckAssistant:
         self.chat_history.append({"role": "assistant", "content": raw_reply})
 
         sources = [
-            {"title": s.title, "url": s.url}
+            {"title": _clean_spec_val(s.title, ""), "url": s.url}
             for s in search_bundle.sources[:3]
-            if s.title
+            if _clean_spec_val(s.title, "")
         ]
         return TurnResponse(
             chat_reply=raw_reply,
@@ -550,7 +572,7 @@ class SpecDeckAssistant:
                             "update_card": False,
                             "phone_card": None,
                             "compare_card": None,
-                            "chat_reply": _strip_reasoning_and_fences(content),
+                            "chat_reply": _sanitize_text(_strip_reasoning_and_fences(content)),
                         }, candidate, int(used_tok)
                 except Exception as exc:
                     err_str = str(exc).lower()
