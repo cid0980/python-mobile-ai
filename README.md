@@ -1,136 +1,99 @@
-# SpecDeck — Python Mobile Phone AI
+# SpecDeck — Smartphone Hardware Intelligence Studio
 
-A desktop smartphone research, side-by-side comparison, and buying advisor application built with Python and CustomTkinter. Powered by the Groq API with live web specification lookup and neural voice output.
+**SpecDeck** is a desktop hardware intelligence terminal and contextual AI analyst for smartphones, built with **Python (FastAPI)**, **Groq Cloud LLMs**, **Live Web Grounding (`ddgs`)**, and **Neural Voice Synthesis (`edge-tts`)**.
 
----
-
-## Features
-
-- **Structured Hardware Datasheet** — Automatically extracts launch dates, retail pricing, full hardware specifications, category ratings (0–10), strengths, and trade-offs into a dedicated specification pane.
-- **Side-by-Side Comparison** — Compare any two phones head-to-head across category scores, display, chipset, memory, camera hardware, battery/charging, and software support.
-- **Contextual Advisor Thread** — Ask natural follow-up questions (*gaming thermals, night photography, charging times, budget alternatives*) with rolling conversation memory.
-- **Dedicated Settings Window** — Click **Settings** (or press `Ctrl+,`) to paste your Groq API key with one click (`Paste` + `Verify`), choose your default model, pick a neural voice, and toggle OS startup.
-- **Rate-Limit-Safe Token Budgeting** — Compact prompts, cached search snippets (~200 tokens), rolling history trimming, and automatic HTTP `429` model rotation keep usage around ~700–1,100 tokens per turn.
-- **Neural Voice Output** — Listen to any response on demand (`Speak` / `Stop Audio`) or enable automatic `Voice Out` using `edge-tts` + `pygame` (uses zero Groq API tokens, with offline OS speech fallback).
-- **Zero-Prerequisite Setup & Login Auto-Start** — Bootstrapper scripts for Windows and Linux automatically install Python 3 + Tkinter (if missing), create `.venv`, install dependencies, and optionally register system login auto-start.
+Designed with modern interface engineering principles — precision dark surfaces, concentric geometry, `tabular-nums` hardware telemetry, progressive disclosure, and a live **5-Axis SVG Hardware Radar** — SpecDeck pairs a structured hardware datasheet on the left with a continuous AI analyst stream on the right.
 
 ---
 
-## Quick Start
+## Core Capabilities
 
-### Linux
+- **Split-Screen Hardware Telemetry + Continuous Analyst Stream**
+  - **Left Pane (`Datasheet`):** Displays brand & availability signal, launch window, retail MSRP (`$ USD / ₹ INR`), a **5-axis SVG telemetry radar** (`Performance`, `Optics`, `Display`, `Power`, `Value`), an 8-cell bento hardware grid (Display, Silicon/SoC, Memory/UFS, Rear Optics, Front Camera, Battery/Charge, OS Policy, Chassis/IP), primary strengths, and honest trade-offs.
+  - **Right Pane (`Analyst Session`):** Contextual follow-up conversation (`"Does it throttle in 120fps gaming?"`, `"How is 5x night zoom?"`) without losing the pinned datasheet.
+- **Head-to-Head (`A/B`) Comparison Matrix & Dual Radar**
+  - Type `"Compare OnePlus 13 vs iPhone 16 Pro Max"` (or use the `Head-to-Head` tab / `⌘K` omnibar) to overlay **dual translucent radar polygons** alongside category score deltas (`A +0.6`, `B +0.8`) and a row-aligned hardware comparison matrix.
+- **Greeting-Aware Live Web Grounding (`ddgs`)**
+  - Automatically queries live web specifications and pricing for smartphone lookups while skipping casual greetings (`"hello"`, `"thanks"`) to keep citations genuine and latency fast.
+- **Groq Rate-Limit & Token Protection**
+  - Budgets ~800–1,200 tokens per turn using rolling context compression and automatically rotates across active Groq models (`llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`) on `429` rate limits.
+- **Zero-Token Neural Voice Output (`edge-tts`)**
+  - Streams natural neural speech (`Andrew`, `Aria`, `Ryan`, `Sonia`) over `/api/tts` with hover-revealed per-response `Listen` controls and an animated top-bar audio equalizer.
+- **Dedicated Settings & Credentials Sheet (`Ctrl+,` / `⌘,`)**
+  - 1-click **`Paste`**, **`Show/Hide`**, and **`Verify`** for your Groq API key (`saved locally to .env`), model & neural voice selectors, live web search toggle, and OS login auto-start switch.
 
+---
+
+## Quick Start (Zero Prerequisites)
+
+Both launchers automatically verify **Python 3.9+**, create/update `.venv`, install `requirements.txt`, and open SpecDeck in a **standalone chromeless desktop window** (`--app` mode).
+
+### Linux (Ubuntu, Debian, Fedora, Arch, Mint, openSUSE)
 ```bash
 git clone https://github.com/cid0980/python-mobile-ai.git
 cd python-mobile-ai
 chmod +x start_linux.sh autostart_linux.sh
 ./start_linux.sh
 ```
+*(Updating an existing clone? Just run `git pull && ./start_linux.sh` — `.venv` packages upgrade automatically.)*
 
-> If `python3`, `python3-venv`, or `python3-tk` is missing, `start_linux.sh` automatically detects your package manager (`apt-get`, `dnf`, `yum`, `pacman`, `zypper`, `apk`, `xbps-install`) and installs them before creating `.venv`.
+### Windows (10 / 11)
+1. Clone or download this repository.
+2. Double-click **`start_windows.bat`**.
+   - Checks for Python 3.9+ (auto-installs Python 3.12 via `winget` or `python.org` if missing), sets up `.venv`, installs dependencies, and launches SpecDeck cleanly without keeping a console window open.
 
-### Windows (PowerShell or Command Prompt)
-
-```bat
-git clone https://github.com/cid0980/python-mobile-ai.git
-cd python-mobile-ai
-start_windows.bat
-```
-
-*(Or double-click `start_windows.bat` directly in File Explorer.)*
-
-> If Python 3.9+ is not installed on Windows, `start_windows.bat` automatically installs Python 3.12 (including `pip` and `Tkinter`) via `winget` or the official silent installer from `python.org` without requiring Administrator privileges.
+### Configuring Your Free Groq API Key
+1. Generate a free API key at **[console.groq.com/keys](https://console.groq.com/keys)**.
+2. Click the **Settings gear icon** (`⚙` top-right, or press `Ctrl+,`).
+3. Click **`Paste`** → **`Verify`** → **`Save Changes`**.
 
 ---
 
-## Enable Auto-Start on System Login
+## Auto-Start on OS Login
 
-Toggle **Launch on OS login** inside **Settings**, or run the setup utility from your terminal:
+Enable or disable automatic launch on system login either from the in-app **Settings** switch (`Launch on System Login`) or via the included scripts:
 
-### Linux (XDG Autostart + Desktop Menu Entry)
-
-```bash
-# Interactive setup menu
-./autostart_linux.sh
-
-# Non-interactive CLI flags
-./autostart_linux.sh --enable
-./autostart_linux.sh --status
-./autostart_linux.sh --disable
-```
-
-### Windows (Startup Folder + Desktop Shortcut)
-
-```bat
-:: Interactive setup menu
-autostart_windows.bat
-
-:: Non-interactive CLI flags
-autostart_windows.bat --enable
-autostart_windows.bat --status
-autostart_windows.bat --disable
-```
+- **Windows:** Double-click `autostart_windows.bat` (manages `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\SpecDeckAI.vbs` + Desktop shortcut).
+- **Linux:** Run `./autostart_linux.sh` (manages `~/.config/autostart/specdeck-ai.desktop` + application launcher entry).
 
 ---
 
-## API Key Setup
-
-1. Create a free API key at **[console.groq.com/keys](https://console.groq.com/keys)**.
-2. Open the app, click **Settings** in the top-right toolbar (or press `Ctrl+,`), click **Paste** next to **Groq API Key**, optionally click **Verify**, and click **Save Settings**.
-   *(Your key is saved locally in `.env` and ignored by Git.)*
-
-Alternatively, configure `.env` manually before launching:
-
-```bash
-cp .env.example .env
-```
-
-```env
-GROQ_API_KEY=gsk_your_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
-```
-
----
-
-## Manual Setup (If You Already Have Python 3.9+)
-
-```bash
-# Linux / macOS
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-```bat
-:: Windows
-py -3 -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-
----
-
-## Project Structure
+## Project Architecture
 
 ```text
 python-mobile-ai/
-├── app.py                  # Split-pane CustomTkinter UI + dedicated Settings window
-├── ai_engine.py            # Groq client, token-safe memory, JSON parser & 429 model fallback
-├── web_search.py           # Cached DuckDuckGo (`ddgs`) live smartphone spec & review lookup
-├── voice_engine.py         # Neural TTS (`edge-tts` + `pygame.mixer`) with offline OS fallback
-├── autostart_manager.py    # Cross-platform Windows & Linux login auto-start and shortcut helper
-├── start_windows.bat       # Windows auto-installer (Python + venv + packages) & launcher
-├── autostart_windows.bat   # Windows login auto-start & Desktop shortcut setup script
-├── start_linux.sh          # Linux auto-installer (Python3 + Tk + venv + packages) & launcher
-├── autostart_linux.sh      # Linux XDG autostart & Application Menu setup script
-├── specdeck_icon.svg       # Vector launcher icon
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment variable template
-├── .gitignore              # Git ignore rules (.venv, .env, caches)
-└── LICENSE                 # MIT License
+├── app.py                 # FastAPI backend + standalone chromeless desktop window launcher
+├── static/
+│   └── index.html         # Precision dark UI, 5-axis SVG radar, concentric layout & stream
+├── ai_engine.py           # Groq JSON-mode analyst engine, spec sanitizer & 429 model fallback
+├── web_search.py          # Greeting-aware DuckDuckGo smartphone spec & MSRP grounding
+├── voice_engine.py        # Async Microsoft Edge Neural TTS MP3 byte streamer
+├── autostart_manager.py   # Cross-platform Windows & Linux login auto-start manager
+├── start_windows.bat      # 1-click Windows Python + .venv auto-installer & launcher
+├── autostart_windows.bat  # Windows Startup toggle menu
+├── start_linux.sh         # 1-click Linux multi-distro Python + .venv installer & launcher
+├── autostart_linux.sh     # Linux XDG autostart toggle menu
+├── specdeck_icon.svg      # Vector app icon
+├── requirements.txt       # Python dependencies
+└── .env.example           # Environment template
 ```
+
+### Optional Browser / Projector Server Mode
+For classroom projector demos or browser debugging:
+```bash
+./.venv/bin/python app.py --server --host 0.0.0.0 --port 8000
+```
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `Ctrl+K` / `⌘K` | Focus top quick-jump & comparison omnibar |
+| `Ctrl+,` / `⌘,` | Open Settings & API Key modal |
+| `Esc` | Close modal |
+| `Enter` | Submit query |
 
 ---
 

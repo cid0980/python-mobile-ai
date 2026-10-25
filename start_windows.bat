@@ -18,32 +18,32 @@ set "USE_PY_LAUNCHER=0"
 if not exist "%VENV_PY%" goto :ensure_python
 if not exist "%STAMP_FILE%" goto :ensure_python
 
-"%VENV_PY%" -c "import hashlib, pathlib, sys; h=hashlib.sha256(pathlib.Path('requirements.txt').read_bytes()).hexdigest(); s=pathlib.Path(r'%STAMP_FILE%').read_text().strip(); import customtkinter, groq, ddgs, dotenv, requests, edge_tts, pygame, tkinter; sys.exit(0 if h==s else 1)" >nul 2>&1
+"%VENV_PY%" -c "import hashlib, pathlib, sys; h=hashlib.sha256(pathlib.Path('requirements.txt').read_bytes()).hexdigest(); s=pathlib.Path(r'%STAMP_FILE%').read_text().strip(); import fastapi, uvicorn, groq, ddgs, dotenv, requests, edge_tts; sys.exit(0 if h==s else 1)" >nul 2>&1
 if errorlevel 1 goto :ensure_python
 goto :dispatch_mode
 
 :: ---------------------------------------------------------------------------
-:: 1. Detect Existing Python 3.9+ (with venv & Tkinter) — Ignores MS Store Stub
+:: 1. Detect Existing Python 3.9+ (with venv) — Ignores MS Store Stub
 :: ---------------------------------------------------------------------------
 :ensure_python
-echo [SpecDeck AI] Checking Python 3.9+ and Tkinter...
+echo [SpecDeck] Checking Python 3.9+ runtime...
 call :find_python
 if not errorlevel 1 goto :python_ready
 
-echo [SpecDeck AI] Python 3.9+ not found. Installing Python 3.12 automatically...
+echo [SpecDeck] Python 3.9+ not found. Installing Python 3.12 automatically...
 
 :: Attempt A: Windows Package Manager (winget)
 where winget >nul 2>&1
 if errorlevel 1 goto :download_python_org
 
-echo [SpecDeck AI] Installing Python 3.12 via winget (per-user, no admin needed)...
+echo [SpecDeck] Installing Python 3.12 via winget (per-user, no admin needed)...
 winget install -e --id Python.Python.3.12 --scope user --accept-package-agreements --accept-source-agreements
 call :find_python
 if not errorlevel 1 goto :python_ready
 
 :: Attempt B: Official python.org Silent Installer via PowerShell
 :download_python_org
-echo [SpecDeck AI] Downloading official Python 3.12 installer from python.org...
+echo [SpecDeck] Downloading official Python 3.12 installer from python.org...
 set "PY_URL=https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe"
 if /I "%PROCESSOR_ARCHITECTURE%"=="ARM64" set "PY_URL=https://www.python.org/ftp/python/3.12.8/python-3.12.8-arm64.exe"
 if /I "%PROCESSOR_ARCHITECTURE%"=="x86" set "PY_URL=https://www.python.org/ftp/python/3.12.8/python-3.12.8.exe"
@@ -52,8 +52,8 @@ set "INSTALLER=%TEMP%\specdeck_python_312_setup.exe"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%PY_URL%' -OutFile '%INSTALLER%' -UseBasicParsing"
 if not exist "%INSTALLER%" goto :python_install_failed
 
-echo [SpecDeck AI] Running silent Python 3.12 setup (including Tkinter ^& pip)...
-"%INSTALLER%" /quiet InstallAllUsers=0 PrependPath=1 Include_test=0 Include_tcltk=1 Include_pip=1 Include_launcher=1
+echo [SpecDeck] Running silent Python 3.12 setup...
+"%INSTALLER%" /quiet InstallAllUsers=0 PrependPath=1 Include_test=0 Include_pip=1 Include_launcher=1
 del /f /q "%INSTALLER%" >nul 2>&1
 
 call :find_python
@@ -77,7 +77,7 @@ if "%USE_PY_LAUNCHER%"=="1" (
 :: 2. Create Virtual Environment (.venv) if missing
 :: ---------------------------------------------------------------------------
 if exist "%VENV_PY%" goto :install_deps
-echo [SpecDeck AI] Creating local virtual environment (.venv)...
+echo [SpecDeck] Creating local virtual environment (.venv)...
 if "%USE_PY_LAUNCHER%"=="1" (
     py -3 -m venv "%VENV_DIR%"
 ) else (
@@ -93,7 +93,7 @@ if not exist "%VENV_PY%" (
 :: 3. Install / Update Dependencies from requirements.txt
 :: ---------------------------------------------------------------------------
 :install_deps
-echo [SpecDeck AI] Installing / verifying Python packages...
+echo [SpecDeck] Installing / verifying Python packages...
 "%VENV_PY%" -m pip install --upgrade pip --quiet
 "%VENV_PY%" -m pip install -r "%~dp0requirements.txt"
 if errorlevel 1 (
@@ -128,12 +128,12 @@ if /I "%MODE%"=="--status-autostart" (
 )
 
 if /I "%MODE%"=="--console" (
-    echo [SpecDeck AI] Launching in console mode...
+    echo [SpecDeck] Launching in console mode...
     "%VENV_PY%" "%~dp0app.py"
     exit /b %ERRORLEVEL%
 )
 
-:: Default & --silent: Launch GUI cleanly via pythonw.exe without keeping CMD open
+:: Default & --silent: Launch native desktop window cleanly via pythonw.exe
 if exist "%VENV_PYW%" (
     start "" "%VENV_PYW%" "%~dp0app.py"
 ) else (
@@ -142,19 +142,19 @@ if exist "%VENV_PYW%" (
 exit /b 0
 
 :: ===========================================================================
-:: Subroutine: Locate a real Python 3.9+ interpreter with venv & tkinter
+:: Subroutine: Locate a real Python 3.9+ interpreter with venv
 :: ===========================================================================
 :find_python
 set "PY_EXE="
 set "USE_PY_LAUNCHER=0"
 
-py -3 -c "import sys, venv, tkinter; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
+py -3 -c "import sys, venv; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
 if not errorlevel 1 (
     set "USE_PY_LAUNCHER=1"
     exit /b 0
 )
 
-python -c "import sys, venv, tkinter; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
+python -c "import sys, venv; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
 if not errorlevel 1 (
     set "PY_EXE=python"
     exit /b 0
@@ -172,7 +172,7 @@ exit /b 1
 
 :probe_exe
 if not exist "%~1" exit /b 1
-"%~1" -c "import sys, venv, tkinter; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
+"%~1" -c "import sys, venv; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >nul 2>&1
 if errorlevel 1 exit /b 1
 set "PY_EXE=%~1"
 exit /b 0

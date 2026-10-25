@@ -14,7 +14,7 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 
-# Temp / OS / launcher artifacts
+# Temp / OS / launcher / sandbox artifacts
 *.log
 .launch_hidden.vbs
 .DS_Store
@@ -23,3 +23,4 @@ Thumbs.db
 .fonts/
 .local/
 .sudo_as_admin_successful
+uploads/

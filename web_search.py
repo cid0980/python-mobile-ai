@@ -1,7 +1,7 @@
 """
 web_search.py — Token-Efficient Live Smartphone Search Module
-Fetches concise, accurate launch dates, specs, and pricing via DuckDuckGo (`ddgs`)
-with caching and strict snippet length budgets so Groq TPM limits are never strained.
+Fetches accurate launch dates, GSMArena/PhoneArena specs, and pricing via `ddgs`
+while skipping casual greetings/chitchat so web citations stay 100% genuine.
 """
 
 from __future__ import annotations
@@ -32,20 +32,26 @@ class SearchBundle:
     error: Optional[str] = None
 
 
-# In-memory query cache to avoid redundant network hits in continuous chats
 _QUERY_CACHE: Dict[str, List[SearchSource]] = {}
+
+GREETINGS_AND_CHITCHAT = {
+    "hi", "hello", "hey", "yo", "hola", "namaste", "sup",
+    "good morning", "good afternoon", "good evening",
+    "thanks", "thank you", "thx", "ok", "okay", "cool", "nice", "great",
+    "help", "who are you", "what can you do", "how are you", "bye",
+}
 
 FOLLOW_UP_PRONOUNS = {
     "it", "its", "this", "that", "they", "them", "same", "phone", "device", "both",
 }
 
-SIMPLE_NO_SEARCH_PHRASES = (
-    "summarize", "shorter", "explain", "which one should i", "thanks", "thank you",
-    "in short", "pros and cons", "tldr",
+PURE_CONVERSATIONAL_FOLLOWUPS = (
+    "summarize", "shorter", "explain", "which one should i",
+    "in short", "tldr", "for college", "for my mom", "for my dad",
 )
 
 
-def _trim(text: str, max_len: int = 175) -> str:
+def _trim(text: str, max_len: int = 230) -> str:
     clean = " ".join((text or "").split())
     if len(clean) <= max_len:
         return clean
@@ -53,11 +59,18 @@ def _trim(text: str, max_len: int = 175) -> str:
 
 
 def should_skip_web_search(user_message: str, has_active_phone: bool) -> bool:
-    """Skip web search on pure conversational follow-ups when specs are already loaded."""
-    if not has_active_phone:
-        return False
-    low = user_message.strip().lower()
-    if any(p in low for p in SIMPLE_NO_SEARCH_PHRASES) and len(low.split()) <= 10:
+    """Never run web search on casual greetings or pure summary follow-ups."""
+    cleaned = re.sub(r"[!?.,:;]+", "", user_message.strip().lower())
+    cleaned = " ".join(cleaned.split())
+    if not cleaned:
+        return True
+    if cleaned in GREETINGS_AND_CHITCHAT:
+        return True
+    # Short greeting phrases like "hey there", "hello ai", "hi bro"
+    words = cleaned.split()
+    if len(words) <= 3 and words[0] in {"hi", "hello", "hey", "thanks", "thank", "ok", "okay"}:
+        return True
+    if has_active_phone and any(p in cleaned for p in PURE_CONVERSATIONAL_FOLLOWUPS) and len(words) <= 10:
         return True
     return False
 
@@ -67,46 +80,45 @@ def build_phone_queries(
     active_phone: Optional[str] = None,
     compare_phone: Optional[str] = None,
 ) -> List[str]:
-    """Build 1–2 lean search queries tailored to single lookup, follow-up, or comparison."""
+    """Build 1–2 targeted smartphone spec queries."""
     msg = " ".join(user_message.strip().split())
     if not msg:
         return []
 
     low = msg.lower()
 
-    # Explicit A vs B comparison pattern ("X vs Y" or "compare X and/with Y")
-    vs_match = re.split(r"\b(?:vs\.?|versus|compared?\s+(?:with|to))\b", msg, maxsplit=1, flags=re.I)
+    # Explicit A vs B comparison ("X vs Y" or "compare X with Y")
+    vs_match = re.split(
+        r"\b(?:vs\.?|versus|compared?\s+(?:with|to|and))\b", msg, maxsplit=1, flags=re.I
+    )
     if len(vs_match) == 2:
         left_part = re.sub(r"^(?:compare|between)\s+", "", vs_match[0], flags=re.I).strip(" ?.,")
         right_part = vs_match[1].strip(" ?.,")
-        # If left side is empty or a pronoun ("compare it with OnePlus 13"), substitute active_phone
         if (not left_part or left_part.lower() in FOLLOW_UP_PRONOUNS) and active_phone:
             left_part = active_phone
         if left_part and right_part:
             return [
-                f"{left_part} specifications launch date price gsmarena",
-                f"{right_part} specifications launch date price gsmarena",
+                f"{left_part} full phone specifications launch date price gsmarena",
+                f"{right_part} full phone specifications launch date price gsmarena",
             ]
 
     tokens = set(re.findall(r"[a-z0-9\+]+", low))
     is_followup = bool(
         active_phone
         and active_phone.lower() not in low
-        and ((tokens & FOLLOW_UP_PRONOUNS) or len(tokens) <= 7)
+        and ((tokens & FOLLOW_UP_PRONOUNS) or len(tokens) <= 6)
     )
 
     if is_followup and active_phone:
         if compare_phone and ("both" in tokens or "better" in tokens or "winner" in tokens):
-            return [f"{active_phone} vs {compare_phone} review comparison"]
-        return [f"{active_phone} {msg} review specs"]
+            return [f"{active_phone} vs {compare_phone} comparison review"]
+        return [f"{active_phone} {msg} smartphone review specs"]
 
-    # Discovery / budget query
     if any(k in low for k in ("best ", "suggest", "recommend", "under ", "budget")):
         return [f"{msg} smartphone 2025 2026 specs price"]
 
-    # Standard single-phone lookup (single concise query + optional review query)
     return [
-        f"{msg} full specifications launch date price gsmarena",
+        f"{msg} full phone specifications launch date price gsmarena",
     ]
 
 
@@ -129,7 +141,7 @@ def _ddgs_text_search(query: str, max_results: int = 4) -> List[SearchSource]:
     for item in raw_items:
         title = _trim(item.get("title") or "", 90)
         url = (item.get("href") or item.get("url") or "").strip()
-        snippet = _trim(item.get("body") or item.get("snippet") or "", 175)
+        snippet = _trim(item.get("body") or item.get("snippet") or "", 230)
         if title or snippet:
             sources.append(SearchSource(title=title, url=url, snippet=snippet))
 
@@ -164,7 +176,7 @@ def _html_fallback_search(query: str, max_results: int = 4) -> List[SearchSource
         clean_title = _trim(html.unescape(re.sub(r"<[^>]+>", "", raw_title)), 90)
         clean_snippet = ""
         if idx < len(snippets):
-            clean_snippet = _trim(html.unescape(re.sub(r"<[^>]+>", "", snippets[idx])), 175)
+            clean_snippet = _trim(html.unescape(re.sub(r"<[^>]+>", "", snippets[idx])), 230)
 
         real_url = raw_href
         parsed = urllib.parse.urlparse(raw_href)
@@ -185,7 +197,7 @@ def search_phone_facts(
     compare_phone: Optional[str] = None,
     max_total_results: int = 4,
 ) -> SearchBundle:
-    """Fetch compact web facts (~180–240 tokens max) so API limits stay completely safe."""
+    """Fetch compact web facts (~240 tokens max) while skipping casual greetings."""
     if should_skip_web_search(user_message, has_active_phone=bool(active_phone)):
         return SearchBundle(used_search=False)
 
@@ -222,7 +234,7 @@ def search_phone_facts(
     if not collected:
         return SearchBundle(used_search=False, queries=queries, error=last_error)
 
-    lines = ["WEB FACTS:"]
+    lines = ["WEB SEARCH REFERENCE SNIPPETS:"]
     for i, src in enumerate(collected, start=1):
         lines.append(f"[{i}] {src.title}: {src.snippet}")
 
