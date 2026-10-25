@@ -1,9 +1,3 @@
-"""
-autostart_manager.py — Cross-Platform Login Auto-Start & Shortcut Manager
-Supports Windows (Startup folder hidden VBS launcher + Desktop .lnk)
-and Linux (XDG ~/.config/autostart/specdeck-ai.desktop + App Menu launcher).
-"""
-
 from __future__ import annotations
 
 import os
@@ -17,9 +11,6 @@ PROJECT_DIR = Path(__file__).resolve().parent
 ICON_SVG_PATH = PROJECT_DIR / "specdeck_icon.svg"
 
 
-# ---------------------------------------------------------------------------
-# Windows Paths & Helpers
-# ---------------------------------------------------------------------------
 def _win_startup_dir() -> Path:
     appdata = os.environ.get("APPDATA", "")
     if appdata:
@@ -31,9 +22,6 @@ def _win_startup_vbs() -> Path:
     return _win_startup_dir() / "SpecDeckAI_Autostart.vbs"
 
 
-# ---------------------------------------------------------------------------
-# Linux Paths & Helpers
-# ---------------------------------------------------------------------------
 def _linux_autostart_file() -> Path:
     xdg_config = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
     return xdg_config / "autostart" / "specdeck-ai.desktop"
@@ -52,9 +40,8 @@ def _linux_desktop_entry_content(autostart_mode: bool = False) -> str:
         "[Desktop Entry]",
         "Type=Application",
         "Version=1.0",
-        "Name=SpecDeck AI",
-        "GenericName=Smartphone AI Advisor",
-        "Comment=Live Mobile Phone Specs, Launch Dates & AI Buying Advisor",
+        "Name=SpecDeck",
+        "GenericName=Smartphone Hardware Intelligence",
         f'Exec="{start_script}"{exec_flag}',
         f"Path={PROJECT_DIR}",
         f"Icon={icon_str}",
@@ -72,11 +59,7 @@ def _linux_desktop_entry_content(autostart_mode: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
-# ---------------------------------------------------------------------------
-# Public Cross-Platform API
-# ---------------------------------------------------------------------------
 def is_autostart_enabled() -> bool:
-    """Return True if SpecDeck AI is configured to auto-start on OS login."""
     if os.name == "nt":
         return _win_startup_vbs().exists()
     if sys.platform.startswith("linux"):
@@ -89,7 +72,6 @@ def is_autostart_enabled() -> bool:
 
 
 def enable_autostart() -> Tuple[bool, str]:
-    """Enable automatic launch when the user logs into Windows or Linux."""
     try:
         if os.name == "nt":
             startup_dir = _win_startup_dir()
@@ -97,7 +79,6 @@ def enable_autostart() -> Tuple[bool, str]:
             bat_path = PROJECT_DIR / "start_windows.bat"
             vbs_path = _win_startup_vbs()
 
-            # Escape double quotes for VBScript string
             escaped_dir = str(PROJECT_DIR).replace('"', '""')
             escaped_bat = str(bat_path).replace('"', '""')
             vbs_content = (
@@ -119,13 +100,12 @@ def enable_autostart() -> Tuple[bool, str]:
             autostart_path.chmod(0o755)
             return True, f"Linux Login Auto-Start enabled ({autostart_path})"
 
-        return False, f"Auto-start is currently supported on Windows and Linux (detected: {sys.platform})."
+        return False, f"Auto-start is supported on Windows and Linux (detected: {sys.platform})."
     except Exception as exc:
         return False, f"Failed to enable auto-start: {exc}"
 
 
 def disable_autostart() -> Tuple[bool, str]:
-    """Disable automatic launch on Windows or Linux login."""
     try:
         if os.name == "nt":
             vbs_path = _win_startup_vbs()
@@ -145,7 +125,6 @@ def disable_autostart() -> Tuple[bool, str]:
 
 
 def create_shortcuts() -> Tuple[bool, str]:
-    """Create Desktop / Application Menu shortcuts for Windows or Linux."""
     try:
         if os.name == "nt":
             bat_path = PROJECT_DIR / "start_windows.bat"
@@ -161,12 +140,12 @@ def create_shortcuts() -> Tuple[bool, str]:
             ps_cmd = (
                 "$ws = New-Object -ComObject WScript.Shell; "
                 "$desk = [Environment]::GetFolderPath('Desktop'); "
-                "$lnk = $ws.CreateShortcut((Join-Path $desk 'SpecDeck AI.lnk')); "
+                "$lnk = $ws.CreateShortcut((Join-Path $desk 'SpecDeck.lnk')); "
                 "$lnk.TargetPath = 'wscript.exe'; "
                 f"$lnk.Arguments = '\"{vbs_launcher}\"'; "
                 f"$lnk.WorkingDirectory = '{PROJECT_DIR}'; "
                 "$lnk.IconLocation = 'shell32.dll,23'; "
-                "$lnk.Description = 'Launch SpecDeck AI Smartphone Advisor'; "
+                "$lnk.Description = 'Launch SpecDeck Smartphone Advisor'; "
                 "$lnk.Save()"
             )
             subprocess.run(
@@ -175,7 +154,7 @@ def create_shortcuts() -> Tuple[bool, str]:
                 capture_output=True,
                 text=True,
             )
-            return True, "Created 'SpecDeck AI' shortcut on your Windows Desktop."
+            return True, "Created 'SpecDeck' shortcut on your Windows Desktop."
 
         if sys.platform.startswith("linux"):
             app_menu = _linux_app_menu_file()
@@ -186,7 +165,7 @@ def create_shortcuts() -> Tuple[bool, str]:
 
             desktop_dir = Path.home() / "Desktop"
             if desktop_dir.is_dir():
-                desk_file = desktop_dir / "SpecDeck-AI.desktop"
+                desk_file = desktop_dir / "SpecDeck.desktop"
                 desk_file.write_text(content, encoding="utf-8")
                 desk_file.chmod(0o755)
                 return True, f"Created Linux App Menu & Desktop shortcut ({desk_file})"
@@ -213,4 +192,4 @@ if __name__ == "__main__":
         sys.exit(0 if ok else 1)
     else:
         state = "ENABLED" if is_autostart_enabled() else "DISABLED"
-        print(f"SpecDeck AI Login Auto-Start Status: {state}")
+        print(f"SpecDeck Login Auto-Start Status: {state}")

@@ -26,10 +26,10 @@ if /I "%ARG%"=="--status" (
 )
 
 echo ============================================================
-echo    SpecDeck AI — Windows Setup, Shortcut ^& Login Auto-Start
+echo    SpecDeck — Windows Setup, Shortcut ^& Login Auto-Start
 echo ============================================================
 echo.
-echo Step 1/2: Verifying Python 3, Tkinter ^& all dependencies...
+echo Step 1/2: Verifying Python 3 ^& all dependencies...
 call "%~dp0start_windows.bat" --setup-only
 if errorlevel 1 (
     echo.
@@ -45,7 +45,7 @@ echo Choose an option:
 echo   [1] Enable Auto-Start on Windows Login + Create Desktop Shortcut
 echo   [2] Create Desktop Shortcut Only (No Login Auto-Start)
 echo   [3] Disable Auto-Start on Windows Login
-echo   [4] Launch SpecDeck AI Right Now
+echo   [4] Launch SpecDeck Right Now
 echo   [5] Exit
 echo.
 set /p "CHOICE=Enter choice [1-5]: "
@@ -59,7 +59,7 @@ goto :eof_done
 :opt_enable
 call "%~dp0start_windows.bat" --enable-autostart
 echo.
-set /p "RUN_NOW=Launch SpecDeck AI right now as well? [Y/N]: "
+set /p "RUN_NOW=Launch SpecDeck right now as well? [Y/N]: "
 if /I "%RUN_NOW%"=="Y" call "%~dp0start_windows.bat" --silent
 pause
 exit /b 0

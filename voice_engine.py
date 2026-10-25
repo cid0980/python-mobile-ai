@@ -1,10 +1,3 @@
-"""
-voice_engine.py — Ultra-Low-Latency Word-Synchronized Neural TTS Engine
-Uses fast-inference neural voices (`en-US-GuyNeural` / `en-US-AriaNeural` — 12x
-real-time synthesis speed) + IPv4 `AF_INET` transport + `WordBoundary` offsets
-so UI text reveals word-by-word in exact lockstep with the spoken voice.
-"""
-
 from __future__ import annotations
 
 import asyncio
@@ -40,7 +33,6 @@ _TTS_WARMED = False
 
 
 def resolve_fast_voice(voice: str | None) -> str:
-    """Resolve voice ID and upgrade legacy slow multilingual voices to 12x-faster GuyNeural."""
     if not voice or voice in LEGACY_SLOW_VOICES:
         return DEFAULT_NEURAL_VOICE
     if voice in VOICE_PRESETS.values():
@@ -49,7 +41,6 @@ def resolve_fast_voice(voice: str | None) -> str:
 
 
 def prepare_speech_text(raw_text: str, max_chars: int = 1400) -> str:
-    """Clean markdown formatting while keeping spoken words aligned with visual words."""
     if not raw_text:
         return ""
     txt = raw_text
@@ -72,11 +63,6 @@ def prepare_speech_text(raw_text: str, max_chars: int = 1400) -> str:
 
 
 def split_markdown_segments(raw_markdown: str) -> List[str]:
-    """
-    Split an analyst Markdown response into natural, fast-synthesizing segments.
-    Pairs each `### Heading` with its first content bullet/sentence so Segment #0
-    starts in ~800ms and plays for ~6-9s while remaining segments prefetch seamlessly.
-    """
     if not raw_markdown or not raw_markdown.strip():
         return []
 
@@ -130,7 +116,6 @@ def split_markdown_segments(raw_markdown: str) -> List[str]:
 
 
 async def warm_tts_engine() -> None:
-    """Pre-warm Edge TTS DRM handshake over IPv4 at server startup."""
     global _TTS_WARMED
     if _TTS_WARMED or not HAS_EDGE_TTS:
         return
@@ -154,10 +139,6 @@ async def synthesize_segment_with_words(
     markdown_segment: str,
     voice: str = DEFAULT_NEURAL_VOICE,
 ) -> Dict[str, Any]:
-    """
-    Synthesize a single Markdown segment over IPv4 via Edge Neural TTS with
-    `WordBoundary` events, returning base64 MP3 audio + exact millisecond word offsets.
-    """
     spoken_text = prepare_speech_text(markdown_segment, max_chars=650)
     if not HAS_EDGE_TTS or not spoken_text:
         return {
@@ -212,19 +193,12 @@ async def stream_synchronized_segments(
     raw_markdown: str,
     voice: str = DEFAULT_NEURAL_VOICE,
 ) -> AsyncIterator[Dict[str, Any]]:
-    """
-    Priority-first pipelined synthesis:
-      1. Synthesizes Segment #0 with 100% dedicated bandwidth (~750-900ms) and yields immediately.
-      2. While the client is playing Segment #0 (~6-10s of speech), synthesizes Segments #1..N
-         with 2-way pipelined concurrency so there is 0ms gap between segments!
-    """
     segments = split_markdown_segments(raw_markdown)
     if not segments:
         return
 
     total = len(segments)
 
-    # 1. Dedicated fast-lane for Segment #0 (zero WebSocket contention!)
     try:
         first_res = await synthesize_segment_with_words(segments[0], voice=voice)
     except Exception:
@@ -236,7 +210,6 @@ async def stream_synchronized_segments(
     if total == 1:
         return
 
-    # 2. Pipelined prefetch for Segments #1..N-1 while Segment #0 is speaking
     sem = asyncio.Semaphore(2)
 
     async def _worker(seg_md: str) -> Dict[str, Any]:
@@ -260,7 +233,6 @@ async def stream_synchronized_segments(
 
 
 async def synthesize_mp3_bytes(text: str, voice: str = DEFAULT_NEURAL_VOICE) -> bytes:
-    """Generate full MP3 bytes over IPv4."""
     if not HAS_EDGE_TTS:
         raise RuntimeError("edge-tts package is not installed.")
     clean = prepare_speech_text(text)

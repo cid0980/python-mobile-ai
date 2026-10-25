@@ -1,7 +1,6 @@
 @echo off
 setlocal EnableExtensions
 
-:: Always work from the folder where start_windows.bat lives
 cd /d "%~dp0"
 
 set "MODE=%~1"
@@ -12,9 +11,6 @@ set "STAMP_FILE=%VENV_DIR%\.reqs.sha256"
 set "PY_EXE="
 set "USE_PY_LAUNCHER=0"
 
-:: ---------------------------------------------------------------------------
-:: Fast Path: If .venv + all packages + requirements hash already match, launch!
-:: ---------------------------------------------------------------------------
 if not exist "%VENV_PY%" goto :ensure_python
 if not exist "%STAMP_FILE%" goto :ensure_python
 
@@ -22,9 +18,6 @@ if not exist "%STAMP_FILE%" goto :ensure_python
 if errorlevel 1 goto :ensure_python
 goto :dispatch_mode
 
-:: ---------------------------------------------------------------------------
-:: 1. Detect Existing Python 3.9+ (with venv) — Ignores MS Store Stub
-:: ---------------------------------------------------------------------------
 :ensure_python
 echo [SpecDeck] Checking Python 3.9+ runtime...
 call :find_python
@@ -32,7 +25,6 @@ if not errorlevel 1 goto :python_ready
 
 echo [SpecDeck] Python 3.9+ not found. Installing Python 3.12 automatically...
 
-:: Attempt A: Windows Package Manager (winget)
 where winget >nul 2>&1
 if errorlevel 1 goto :download_python_org
 
@@ -41,7 +33,6 @@ winget install -e --id Python.Python.3.12 --scope user --accept-package-agreemen
 call :find_python
 if not errorlevel 1 goto :python_ready
 
-:: Attempt B: Official python.org Silent Installer via PowerShell
 :download_python_org
 echo [SpecDeck] Downloading official Python 3.12 installer from python.org...
 set "PY_URL=https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe"
@@ -62,7 +53,7 @@ if not errorlevel 1 goto :python_ready
 :python_install_failed
 echo.
 echo [ERROR] Automatic Python installation could not complete.
-echo Please install Python 3.12+ from https://www.python.org/downloads/ (check "Add python.exe to PATH") and re-run this file.
+echo Please install Python 3.12+ from https://www.python.org/downloads/ and re-run this file.
 if /I not "%MODE%"=="--silent" pause
 exit /b 1
 
@@ -73,9 +64,6 @@ if "%USE_PY_LAUNCHER%"=="1" (
     echo [  OK  ] Found working Python: "%PY_EXE%"
 )
 
-:: ---------------------------------------------------------------------------
-:: 2. Create Virtual Environment (.venv) if missing
-:: ---------------------------------------------------------------------------
 if exist "%VENV_PY%" goto :install_deps
 echo [SpecDeck] Creating local virtual environment (.venv)...
 if "%USE_PY_LAUNCHER%"=="1" (
@@ -89,15 +77,12 @@ if not exist "%VENV_PY%" (
     exit /b 1
 )
 
-:: ---------------------------------------------------------------------------
-:: 3. Install / Update Dependencies from requirements.txt
-:: ---------------------------------------------------------------------------
 :install_deps
 echo [SpecDeck] Installing / verifying Python packages...
 "%VENV_PY%" -m pip install --upgrade pip --quiet
 "%VENV_PY%" -m pip install -r "%~dp0requirements.txt"
 if errorlevel 1 (
-    echo [ERROR] Failed to install dependencies from requirements.txt. Check your internet connection.
+    echo [ERROR] Failed to install dependencies from requirements.txt.
     if /I not "%MODE%"=="--silent" pause
     exit /b 1
 )
@@ -105,9 +90,6 @@ if errorlevel 1 (
 "%VENV_PY%" -c "import hashlib, pathlib; pathlib.Path(r'%STAMP_FILE%').write_text(hashlib.sha256(pathlib.Path('requirements.txt').read_bytes()).hexdigest())"
 echo [  OK  ] All dependencies verified!
 
-:: ---------------------------------------------------------------------------
-:: 4. Dispatch Action Mode
-:: ---------------------------------------------------------------------------
 :dispatch_mode
 if /I "%MODE%"=="--setup-only" exit /b 0
 
@@ -133,7 +115,6 @@ if /I "%MODE%"=="--console" (
     exit /b %ERRORLEVEL%
 )
 
-:: Default & --silent: Launch native desktop window cleanly via pythonw.exe
 if exist "%VENV_PYW%" (
     start "" "%VENV_PYW%" "%~dp0app.py"
 ) else (
@@ -141,9 +122,6 @@ if exist "%VENV_PYW%" (
 )
 exit /b 0
 
-:: ===========================================================================
-:: Subroutine: Locate a real Python 3.9+ interpreter with venv
-:: ===========================================================================
 :find_python
 set "PY_EXE="
 set "USE_PY_LAUNCHER=0"

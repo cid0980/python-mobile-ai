@@ -1,10 +1,3 @@
-"""
-ai_engine.py — Precision Smartphone Intelligence Engine (Groq + Web Grounding)
-Combines live web search snippets with comprehensive hardware knowledge so every
-spec cell is complete (zero 'details not listed'), while maintaining a strict
-~800–1,200 token budget per turn and automatic 429 rate-limit model rotation.
-"""
-
 from __future__ import annotations
 
 import json
@@ -36,7 +29,6 @@ EXCLUDED_MODEL_KEYWORDS = (
 
 
 def _clean_spec_val(val: Any, fallback: str = "—") -> str:
-    """Clean escaped quotes/backslashes from model strings (e.g. 6.82\\\" -> 6.82\")."""
     if val is None:
         return fallback
     s = str(val).strip()
@@ -108,63 +100,63 @@ class PhoneCardData:
 
 
 DEMO_PHONE_CARD = PhoneCardData(
-    name="Samsung Galaxy S26 Ultra",
-    brand="Samsung",
-    tagline="6.9-inch Titanium Flagship · Built-in S-Pen & Quad Telephoto",
-    launch_date="Feb 2026 (Released Mar 2026)",
-    status="Available",
-    price_estimate="$1,299 / ₹1,29,999",
-    specs={
-        "display": '6.9" Dynamic LTPO AMOLED 2X · QHD+ · 1–120Hz · 2600 nits',
-        "processor": "Snapdragon 8 Elite Gen 5 (3nm)",
-        "ram_storage": "12GB / 16GB LPDDR5X · 256GB / 512GB / 1TB UFS 4.0",
-        "rear_camera": "200MP f/1.7 OIS + 50MP UW + 50MP 5x Periscope + 10MP 3x",
-        "front_camera": "12MP f/2.2 Dual-Pixel AF (4K 60fps)",
-        "battery_charging": "5000 mAh · 45W Wired / 15W Qi2 Wireless",
-        "os_updates": "Android 16 (One UI 8) · 7 Years OS & Security",
-        "build_extras": "Grade 5 Titanium · Gorilla Armor · IP68 · S-Pen · Wi-Fi 7",
-    },
-    scores={"performance": 9.8, "camera": 9.6, "display": 9.8, "battery": 8.9, "value": 8.2},
-    good_for=[
-        "Sustained 120fps gaming & heavy multitasking",
-        "Long-range 5x–10x zoom & night video capture",
-        "S-Pen precision notes & 7-year flagship longevity",
-    ],
-    skip_if=[
-        "Prefer compact phones under 200g",
-        "Want 80W–100W ultra-fast wired charging",
-    ],
-    verdict_one_liner="Benchmark Android flagship combining class-leading display optics, S-Pen utility, and 7-year support.",
-)
-
-DEMO_COMPARE_CARD = PhoneCardData(
     name="OnePlus 13",
     brand="OnePlus",
-    tagline="6000mAh Silicon-Carbon Flagship with 100W SuperVOOC",
-    launch_date="Oct 2024 (CN) · Jan 2025 (Global)",
+    tagline="6000mAh Silicon-Carbon Flagship · Snapdragon 8 Elite & 100W SuperVOOC",
+    launch_date="Jan 2025",
     status="Available",
     price_estimate="$899 / ₹69,999",
     specs={
-        "display": '6.82" LTPO 4.1 AMOLED · QHD+ · 1–120Hz · 4500 nits peak',
+        "display": '6.82" LTPO 4.1 AMOLED · QHD+ · 1–120Hz · 4500 nits',
         "processor": "Snapdragon 8 Elite (3nm)",
         "ram_storage": "12GB / 16GB / 24GB LPDDR5X · 256GB / 512GB / 1TB UFS 4.0",
         "rear_camera": "50MP LYT-808 OIS + 50MP 3x Triprism + 50MP UW (Hasselblad)",
         "front_camera": "32MP Sony IMX615 (4K 60fps)",
-        "battery_charging": "6000 mAh Si/C · 100W SuperVOOC / 50W AirVOOC Wireless",
+        "battery_charging": "6000 mAh Si/C · 100W Wired / 50W Wireless",
         "os_updates": "Android 15 (OxygenOS 15) · 4 Years OS / 6 Years Security",
         "build_extras": "Aluminum Frame · Ceramic Guard · IP68 + IP69 · Alert Slider",
     },
     scores={"performance": 9.7, "camera": 9.0, "display": 9.5, "battery": 9.7, "value": 9.3},
     good_for=[
-        "Two-day 6000mAh endurance + 36-min full 100W charge",
-        "High-FPS gaming with large vapor chamber cooling",
-        "Flagship silicon at $300–$400 below Ultra rivals",
+        "Two-day 6000mAh endurance with 36-minute 100W full charge",
+        "Sustained 120fps gaming with dual-cryo vapor chamber cooling",
+        "Flagship silicon priced $300–$400 under Ultra competitors",
     ],
     skip_if=[
-        "Need 5x+ optical periscope zoom for distant subjects",
-        "Want 7 years of guaranteed OS upgrades",
+        "Need 5x–10x optical periscope zoom for distant subjects",
+        "Require 7 years of major OS version upgrades",
     ],
-    verdict_one_liner="Best-value performance and battery flagship with class-leading 100W wired + 50W wireless charging.",
+    verdict_one_liner="High-value flagship pairing Snapdragon 8 Elite speed with class-leading 6000mAh battery life and 100W charging.",
+)
+
+DEMO_COMPARE_CARD = PhoneCardData(
+    name="iPhone 16 Pro Max",
+    brand="Apple",
+    tagline="6.9-inch Grade 5 Titanium Flagship · A18 Pro & 4K120 Dolby Vision",
+    launch_date="Sep 2024",
+    status="Available",
+    price_estimate="$1,199 / ₹1,44,900",
+    specs={
+        "display": '6.9" LTPO Super Retina XDR OLED · 1–120Hz · 2000 nits',
+        "processor": "Apple A18 Pro (3nm)",
+        "ram_storage": "8GB LPDDR5X · 256GB / 512GB / 1TB NVMe",
+        "rear_camera": "48MP Fusion OIS + 48MP UW + 12MP 5x Tetraprism OIS",
+        "front_camera": "12MP TrueDepth PDAF OIS (4K 60fps)",
+        "battery_charging": "4685 mAh · 30W USB-C PD / 25W MagSafe Qi2",
+        "os_updates": "iOS 18 · 6+ Years iOS Feature & Security Support",
+        "build_extras": "Grade 5 Titanium · Ceramic Shield · IP68 (6m) · Camera Control",
+    },
+    scores={"performance": 9.8, "camera": 9.6, "display": 9.6, "battery": 9.3, "value": 8.3},
+    good_for=[
+        "Industry-reference 4K 120fps ProRes & Dolby Vision video",
+        "Single-core speed, ecosystem longevity, and strong resale value",
+        "Consistent 5x tetraprism telephoto and skin-tone rendering",
+    ],
+    skip_if=[
+        "Want ultra-fast 80W–100W wired charging speeds",
+        "Prefer high-RAM Android multitasking at a lower price",
+    ],
+    verdict_one_liner="Benchmark video and performance flagship with long-term iOS support and titanium build quality.",
 )
 
 
@@ -179,26 +171,43 @@ class TurnResponse:
     tokens_used: int = 0
 
 
-SYSTEM_PROMPT = """You are SpecDeck, an authoritative smartphone hardware analyst (current year: 2026).
-Combine WEB SEARCH REFERENCE SNIPPETS (for recent 2025/2026 releases & current pricing) WITH your complete smartphone engineering knowledge so EVERY spec field is detailed and accurate.
-NEVER write "Not specified", "Check retail", or "(details not listed)" for released phones — always provide exact sensor MP, charging wattages, launch OS + update policy, and launch price ($ USD and ₹ INR).
+SYSTEM_PROMPT = """You are SpecDeck, an authoritative smartphone hardware advisor (current year: 2026).
+Combine WEB SEARCH REFERENCE SNIPPETS with your complete smartphone hardware knowledge so every specification field is accurate and complete. Never write "Not specified" or "(details not listed)" for released phones; provide exact chipset, sensor MP, battery mAh + charging watts, OS policy, and launch price ($ USD / ₹ INR).
 
-Return ONLY valid JSON matching:
+Respond with ONLY one valid JSON object matching this exact structure:
 {
-  "update_card": true/false,
-  "phone_card": { ... } or null,
-  "compare_card": { ... } or null,
-  "chat_reply": "Markdown string"
+  "update_card": true,
+  "phone_card": {
+    "name": "Full Official Phone Name",
+    "brand": "Brand",
+    "tagline": "Short hardware positioning line",
+    "launch_date": "Mon YYYY",
+    "status": "Available",
+    "price_estimate": "$XXX / ₹XX,XXX",
+    "specs": {
+      "display": "",
+      "processor": "",
+      "ram_storage": "",
+      "rear_camera": "",
+      "front_camera": "",
+      "battery_charging": "",
+      "os_updates": "",
+      "build_extras": ""
+    },
+    "scores": {"performance": 9.0, "camera": 8.8, "display": 9.0, "battery": 9.0, "value": 8.5},
+    "good_for": ["Strength 1", "Strength 2", "Strength 3"],
+    "skip_if": ["Trade-off 1", "Trade-off 2"],
+    "verdict_one_liner": "One sentence summary."
+  },
+  "compare_card": null,
+  "chat_reply": "Concise natural response for the right panel."
 }
 
-Card schema (required when update_card=true or comparing):
-{"name":"","brand":"","tagline":"","launch_date":"Mon YYYY","status":"Available|Upcoming","price_estimate":"$XXX / ₹XX,XXX","specs":{"display":"","processor":"","ram_storage":"","rear_camera":"","front_camera":"","battery_charging":"","os_updates":"","build_extras":""},"scores":{"performance":9.0,"camera":8.8,"display":9.0,"battery":9.0,"value":8.5},"good_for":["3 crisp strengths"],"skip_if":["2 honest trade-offs"],"verdict_one_liner":""}
-
-Behavior rules:
-1. Casual greeting ("hello", "hi"): set update_card=false, phone_card=null, compare_card=null, and reply warmly in 2 concise lines.
-2. Phone lookup: set update_card=true, fill phone_card completely, set compare_card=null. In chat_reply, write a crisp structured breakdown using ### headings and newline bullet lists (- item): Launch & Pricing, Hardware Standouts, Best Suited For, and Trade-offs.
-3. Follow-up question on current phone: set update_card=false, phone_card=null, compare_card=null; answer directly and concisely in chat_reply.
-4. Comparing two phones ("X vs Y" or "compare with Y"): fill BOTH phone_card (Phone A) and compare_card (Phone B) completely, AND write a clear category-by-category winner summary + buying verdict in chat_reply (never leave chat_reply empty!)."""
+Rules:
+1. Whenever the user mentions, asks about, or searches for ANY specific phone (or asks for a phone recommendation — pick the #1 best phone for phone_card), ALWAYS set "update_card": true and populate "phone_card" completely so the left panel updates immediately.
+2. When comparing two phones ("X vs Y" or "compare with Y"), populate BOTH "phone_card" (Phone A) and "compare_card" (Phone B) completely.
+3. Only set "update_card": false and "phone_card": null on casual greetings ("hello", "thanks") or follow-up questions about the exact phone ALREADY active on the left panel.
+4. Keep "chat_reply" concise, natural, and directly informative (3 to 5 clear sentences or brief bullets): give a quick contextual overview of what the user asked, highlight key real-world strengths/trade-offs, and give a clear recommendation without repeating the raw spec table."""
 
 
 def get_saved_api_key() -> str:
@@ -233,11 +242,7 @@ def save_api_key_to_env(
         for ek, ev in extra.items():
             existing[ek] = str(ev).strip()
 
-    out_lines = [
-        "# SpecDeck Local Configuration",
-        *[f"{k}={v}" for k, v in existing.items()],
-        "",
-    ]
+    out_lines = [f"{k}={v}" for k, v in existing.items()] + [""]
     ENV_PATH.write_text("\n".join(out_lines), encoding="utf-8")
     os.environ["GROQ_API_KEY"] = clean_key
     if model:
@@ -278,7 +283,7 @@ def _parse_phone_card(raw_card: Any) -> Optional[PhoneCardData]:
     if not isinstance(raw_card, dict):
         return None
     name = _clean_spec_val(raw_card.get("name"), "")
-    if not name:
+    if not name or name == "—":
         return None
 
     raw_specs = raw_card.get("specs") if isinstance(raw_card.get("specs"), dict) else {}
@@ -328,10 +333,18 @@ def _parse_phone_card(raw_card: Any) -> Optional[PhoneCardData]:
     )
 
 
-def _extract_json_payload(raw_text: str) -> Dict[str, Any]:
-    cleaned = raw_text.strip()
+def _strip_reasoning_and_fences(raw_text: str) -> str:
+    cleaned = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.S | re.I).strip()
+    cleaned = re.sub(r"<think>.*$", "", cleaned, flags=re.S | re.I).strip()
     cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.I)
     cleaned = re.sub(r"\s*```$", "", cleaned)
+    return cleaned.strip()
+
+
+def _try_parse_json_dict(raw_text: str) -> Optional[Dict[str, Any]]:
+    cleaned = _strip_reasoning_and_fences(raw_text)
+    if not cleaned:
+        return None
 
     try:
         data = json.loads(cleaned)
@@ -342,42 +355,52 @@ def _extract_json_payload(raw_text: str) -> Dict[str, Any]:
 
     start, end = cleaned.find("{"), cleaned.rfind("}")
     if start != -1 and end > start:
+        candidate = cleaned[start : end + 1]
         try:
-            data = json.loads(cleaned[start : end + 1])
+            data = json.loads(candidate)
             if isinstance(data, dict):
                 return data
         except json.JSONDecodeError:
             pass
 
-    return {"update_card": False, "phone_card": None, "compare_card": None, "chat_reply": cleaned}
+    return None
+
+
+def _looks_like_raw_json(text: str) -> bool:
+    s = text.strip()
+    if not s:
+        return False
+    if s.startswith("{") or s.startswith('{"'):
+        return True
+    if '"update_card"' in s or '"phone_card"' in s or '"chat_reply"' in s:
+        return True
+    return False
 
 
 def _synthesize_fallback_summary(
     primary: Optional[PhoneCardData], compare: Optional[PhoneCardData]
 ) -> str:
-    """Guarantee a rich analyst reply even if a model omits chat_reply."""
     if primary and compare:
         return (
-            f"### {primary.name} vs {compare.name}\n"
-            f"- **Launch & Pricing:** {primary.name} ({primary.launch_date}, {primary.price_estimate}) vs "
-            f"{compare.name} ({compare.launch_date}, {compare.price_estimate})\n"
-            f"- **Silicon:** {primary.specs.get('processor', '—')} vs {compare.specs.get('processor', '—')}\n"
-            f"- **Battery & Charge:** {primary.specs.get('battery_charging', '—')} vs {compare.specs.get('battery_charging', '—')}\n"
-            f"- **Verdict:** {primary.verdict_one_liner or ''} {compare.verdict_one_liner or ''}"
+            f"**{primary.name}** ({primary.price_estimate}) faces **{compare.name}** ({compare.price_estimate}) in this comparison.\n"
+            f"- **Performance & Display:** {primary.name} runs {primary.specs.get('processor', 'flagship silicon')}, while {compare.name} uses {compare.specs.get('processor', 'competing silicon')}.\n"
+            f"- **Battery & Camera:** {primary.name} offers {primary.specs.get('battery_charging', '—')}; {compare.name} counters with {compare.specs.get('rear_camera', '—')}.\n"
+            f"- **Bottom Line:** {primary.verdict_one_liner or ''} {compare.verdict_one_liner or ''}"
         ).strip()
     if primary:
+        strength = primary.good_for[0] if primary.good_for else primary.specs.get("processor", "")
+        tradeoff = primary.skip_if[0] if primary.skip_if else ""
+        extra = f" Keep in mind: {tradeoff.lower()}." if tradeoff else ""
         return (
-            f"### {primary.name}\n"
-            f"- **Launch & Price:** {primary.launch_date} · {primary.price_estimate}\n"
-            f"- **Core Hardware:** {primary.specs.get('display', '—')} · {primary.specs.get('processor', '—')}\n"
-            f"- **Verdict:** {primary.verdict_one_liner or 'Full datasheet loaded in the telemetry panel.'}"
-        )
-    return "Datasheet updated."
+            f"**{primary.name}** ({primary.launch_date} · {primary.price_estimate}) is loaded in the datasheet on the left.\n"
+            f"- **Key Highlight:** {strength}.\n"
+            f"- **Core Hardware:** {primary.specs.get('display', '—')} paired with {primary.specs.get('processor', '—')} and {primary.specs.get('battery_charging', '—')}.\n"
+            f"- **Verdict:** {primary.verdict_one_liner}{extra}"
+        ).strip()
+    return "Ask about any smartphone model or head-to-head comparison to load its full specifications and image."
 
 
 class SpecDeckAssistant:
-    """Rate-limit-safe Smartphone AI Engine with single & comparison states."""
-
     def __init__(self, api_key: str = "", model: str = DEFAULT_MODELS[0]) -> None:
         self.api_key: str = api_key or get_saved_api_key()
         self.model: str = os.getenv("GROQ_MODEL", model).strip() or DEFAULT_MODELS[0]
@@ -398,8 +421,8 @@ class SpecDeckAssistant:
         key = self.api_key.strip()
         if not key:
             raise ValueError(
-                "No Groq API key configured. Open Settings (⌘, or top-right gear icon), "
-                "paste your key from console.groq.com/keys, and click Save Settings."
+                "No Groq API key configured. Open Settings (top-right gear icon), "
+                "paste your key from console.groq.com/keys, and click Save Changes."
             )
 
         active_name = self.current_card.name if self.current_card else None
@@ -418,9 +441,10 @@ class SpecDeckAssistant:
 
         if self.current_card:
             ctx = (
-                f"Active device on datasheet: {self.current_card.name} "
+                f"Currently displayed on left panel: {self.current_card.name} "
                 f"({self.current_card.launch_date}, {self.current_card.price_estimate}, "
-                f"{self.current_card.specs.get('processor', '')})."
+                f"{self.current_card.specs.get('processor', '')}). "
+                f"If the user is asking about a DIFFERENT phone, you MUST set update_card=true and populate phone_card for the new phone."
             )
             if self.compare_card:
                 ctx += f" Currently compared against: {self.compare_card.name} ({self.compare_card.price_estimate})."
@@ -442,35 +466,33 @@ class SpecDeckAssistant:
         is_compare_req = bool(
             re.search(r"\b(?:vs\.?|versus|compare|comparison)\b", user_message, flags=re.I)
         )
-        token_cap = 1400 if is_compare_req else 1050
 
         client = Groq(api_key=key)
-        raw_content, used_model, total_tokens = self._call_groq_safe(
-            client, messages, max_tokens=token_cap
+        payload, used_model, total_tokens = self._call_groq_structured(
+            client, messages, max_tokens=4096
         )
 
-        payload = _extract_json_payload(raw_content)
-
-        should_update = bool(payload.get("update_card") or payload.get("update_spec_card"))
         parsed_primary = _parse_phone_card(payload.get("phone_card"))
         parsed_compare = _parse_phone_card(payload.get("compare_card"))
 
         updated_primary: Optional[PhoneCardData] = None
         updated_compare: Optional[PhoneCardData] = None
 
-        if parsed_primary and (should_update or self.current_card is None or is_compare_req):
+        if parsed_primary is not None:
             self.current_card = parsed_primary
             updated_primary = parsed_primary
 
-        if parsed_compare:
+        if parsed_compare is not None:
             self.compare_card = parsed_compare
             updated_compare = parsed_compare
+        elif updated_primary is not None and not is_compare_req:
+            self.compare_card = None
 
         raw_reply = str(payload.get("chat_reply") or "").strip()
         raw_reply = raw_reply.replace('\\"', '"')
-        # Fix inline bullet lists like "• Item A • Item B" into clean multi-line bullets
         raw_reply = re.sub(r"\s+•\s+", "\n- ", raw_reply)
-        if not raw_reply:
+
+        if not raw_reply or _looks_like_raw_json(raw_reply):
             raw_reply = _synthesize_fallback_summary(
                 updated_primary or self.current_card,
                 updated_compare or (self.compare_card if is_compare_req else None),
@@ -494,64 +516,66 @@ class SpecDeckAssistant:
             tokens_used=total_tokens,
         )
 
-    def _call_groq_safe(
+    def _call_groq_structured(
         self,
         client: Groq,
         messages: List[Dict[str, str]],
-        max_tokens: int = 1050,
-    ) -> Tuple[str, str, int]:
+        max_tokens: int = 4096,
+    ) -> Tuple[Dict[str, Any], str, int]:
         candidates = [self.model] + [m for m in DEFAULT_MODELS if m != self.model]
         last_exc: Optional[Exception] = None
 
         for idx, candidate in enumerate(candidates):
-            try:
-                comp = client.chat.completions.create(
-                    model=candidate,
-                    messages=messages,  # type: ignore[arg-type]
-                    temperature=0.25,
-                    max_tokens=max_tokens,
-                    response_format={"type": "json_object"},
-                )
-                content = comp.choices[0].message.content or "{}"
-                used_tok = getattr(getattr(comp, "usage", None), "total_tokens", 0) or 0
-                self.model = candidate
-                return content, candidate, int(used_tok)
-            except Exception as exc:
-                err_str = str(exc).lower()
-                last_exc = exc
+            for use_json_mode in (True, False):
+                try:
+                    kwargs: Dict[str, Any] = {
+                        "model": candidate,
+                        "messages": messages,
+                        "temperature": 0.25,
+                        "max_tokens": max_tokens,
+                    }
+                    if use_json_mode:
+                        kwargs["response_format"] = {"type": "json_object"}
 
-                if "response_format" in err_str or "json_validate_failed" in err_str:
-                    try:
-                        comp = client.chat.completions.create(
-                            model=candidate,
-                            messages=messages,  # type: ignore[arg-type]
-                            temperature=0.25,
-                            max_tokens=max_tokens,
-                        )
-                        content = comp.choices[0].message.content or "{}"
-                        used_tok = getattr(getattr(comp, "usage", None), "total_tokens", 0) or 0
+                    comp = client.chat.completions.create(**kwargs)
+                    content = comp.choices[0].message.content or ""
+                    used_tok = getattr(getattr(comp, "usage", None), "total_tokens", 0) or 0
+                    parsed = _try_parse_json_dict(content)
+                    if parsed is not None:
                         self.model = candidate
-                        return content, candidate, int(used_tok)
-                    except Exception as inner_exc:
-                        last_exc = inner_exc
-                        err_str = str(inner_exc).lower()
+                        return parsed, candidate, int(used_tok)
+                    if not use_json_mode and content.strip() and not _looks_like_raw_json(content):
+                        self.model = candidate
+                        return {
+                            "update_card": False,
+                            "phone_card": None,
+                            "compare_card": None,
+                            "chat_reply": _strip_reasoning_and_fences(content),
+                        }, candidate, int(used_tok)
+                except Exception as exc:
+                    err_str = str(exc).lower()
+                    last_exc = exc
 
-                if any(k in err_str for k in ("invalid_api_key", "401", "authentication")):
-                    raise exc
+                    if any(k in err_str for k in ("invalid_api_key", "401", "authentication")):
+                        raise exc
 
-                if "429" in err_str or "rate_limit" in err_str:
-                    time.sleep(1.5)
-                    continue
+                    if use_json_mode and ("response_format" in err_str or "json_validate_failed" in err_str):
+                        continue
 
-                if idx == 0 and any(k in err_str for k in ("decommissioned", "not found", "does not exist")):
-                    try:
-                        for lm in fetch_groq_models(self.api_key):
-                            if lm not in candidates:
-                                candidates.append(lm)
-                    except Exception:
-                        pass
-                    continue
+                    if "429" in err_str or "rate_limit" in err_str:
+                        time.sleep(1.2)
+                        break
+
+                    if idx == 0 and any(k in err_str for k in ("decommissioned", "not found", "does not exist")):
+                        try:
+                            for lm in fetch_groq_models(self.api_key):
+                                if lm not in candidates:
+                                    candidates.append(lm)
+                        except Exception:
+                            pass
+                        break
+                    break
 
         if last_exc:
             raise last_exc
-        raise RuntimeError("No response from Groq API.")
+        raise RuntimeError("No valid structured response received from Groq API.")

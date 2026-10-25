@@ -8,47 +8,39 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
-    /* Persona: modern-pro-dark (Kraken Pro / Linear / Bloomberg Hardware Terminal) */
-    /* Polish System: Jakub Krehel & Emil Kowalski — concentric radii, tabular-nums, optical alignment, scale(0.96), specific GPU transitions */
-
     :root {
-      --surface-app: #090b10;
-      --surface-deck: #0d1017;
-      --surface-panel: #121620;
-      --surface-elevated: #181d2a;
-      --surface-hover: rgba(255, 255, 255, 0.045);
-      --surface-active: rgba(255, 255, 255, 0.075);
+      --charcoal: #171717;
+      --charcoal-elevated: #1f1f1f;
+      --charcoal-hover: #242424;
+      --charcoal-border: #2b2b2b;
 
-      --border-structure: rgba(255, 255, 255, 0.07);
-      --border-subtle: rgba(255, 255, 255, 0.045);
-      --border-focus: rgba(56, 189, 248, 0.45);
-      --shadow-surface: 0 0 0 1px rgba(255, 255, 255, 0.055), 0 8px 24px -6px rgba(0, 0, 0, 0.55);
-      --shadow-modal: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 28px 64px -12px rgba(0, 0, 0, 0.78);
+      --forest: #06110c;
+      --forest-panel: #0b1912;
+      --forest-elevated: #10231a;
+      --forest-border: #193024;
 
-      --ink-primary: #f3f5f8;
-      --ink-secondary: #9ba3b4;
-      --ink-muted: #5e6678;
+      --crimson: #a31c1b;
+      --crimson-hover: #b82220;
+      --crimson-tint: rgba(163, 28, 27, 0.16);
 
-      --signal-a: #38bdf8;
-      --signal-a-soft: rgba(56, 189, 248, 0.14);
-      --signal-b: #a78bfa;
-      --signal-b-soft: rgba(167, 139, 250, 0.14);
-      --signal-pos: #10b981;
-      --signal-warn: #f59e0b;
-      --signal-err: #f43f5e;
+      --compare-b: #d6dfd9;
+      --compare-b-tint: rgba(214, 223, 217, 0.14);
+
+      --ink-primary: #f2f4f3;
+      --ink-secondary: #a3ada7;
+      --ink-muted: #6c7771;
 
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-      --r-modal: 20px;
-      --r-composer: 16px;
-      --r-bento-shell: 14px;
-      --r-inner: 10px;
+      --r-modal: 16px;
+      --r-composer: 14px;
+      --r-bento-shell: 12px;
+      --r-inner: 8px;
       --r-control: 8px;
       --r-micro: 6px;
 
-      --ease-out-quart: cubic-bezier(0.2, 0, 0, 1);
+      --ease-out: cubic-bezier(0.2, 0, 0, 1);
     }
 
     *, *::before, *::after {
@@ -60,7 +52,7 @@
     html, body {
       height: 100%;
       overflow: hidden;
-      background-color: var(--surface-app);
+      background-color: var(--charcoal);
       color: var(--ink-primary);
       font-family: var(--font-sans);
       font-size: 13.5px;
@@ -89,26 +81,23 @@
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.09); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+    ::-webkit-scrollbar-thumb { background: #2c3530; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3c4841; }
 
-    /* =========================================================================
-       App Shell
-       ========================================================================= */
     .app-shell {
       display: grid;
-      grid-template-rows: 50px 1fr;
+      grid-template-rows: 52px 1fr;
       height: 100vh;
       width: 100vw;
     }
 
     .topbar {
       display: grid;
-      grid-template-columns: 1fr minmax(280px, 440px) 1fr;
+      grid-template-columns: 1fr minmax(280px, 460px) 1fr;
       align-items: center;
       padding: 0 18px;
-      background: var(--surface-deck);
-      border-bottom: 1px solid var(--border-structure);
+      background-color: var(--forest);
+      border-bottom: 1px solid var(--forest-border);
       user-select: none;
       gap: 16px;
     }
@@ -121,19 +110,19 @@
     }
 
     .brand-mark {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 7px;
-      background: linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0.04));
-      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.32);
+      background-color: var(--charcoal);
+      border: 1px solid var(--crimson);
       display: grid;
       place-items: center;
-      color: var(--signal-a);
+      color: var(--crimson);
     }
 
     .brand-name {
       font-weight: 600;
-      font-size: 14px;
+      font-size: 14.5px;
       letter-spacing: -0.02em;
       color: var(--ink-primary);
     }
@@ -142,10 +131,10 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
+      background-color: var(--forest-panel);
+      border: 1px solid var(--forest-border);
       font-size: 11px;
       color: var(--ink-secondary);
       white-space: nowrap;
@@ -155,38 +144,30 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--signal-pos);
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.65);
+      background-color: var(--ink-secondary);
     }
-    .status-dot.warn {
-      background: var(--signal-warn);
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.55);
+    .status-dot.ready {
+      background-color: #3b8a63;
     }
+    .status-dot.warn,
     .status-dot.busy {
-      background: var(--signal-a);
-      animation: pulseDot 1.1s ease-in-out infinite;
-    }
-
-    @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
+      background-color: var(--crimson);
     }
 
     .omnibar {
       position: relative;
       display: flex;
       align-items: center;
-      height: 32px;
-      background: var(--surface-app);
-      border: 1px solid var(--border-structure);
+      height: 34px;
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
       border-radius: var(--r-control);
       padding: 0 10px;
       gap: 8px;
-      transition: border-color 150ms var(--ease-out-quart), box-shadow 150ms var(--ease-out-quart);
+      transition: border-color 140ms var(--ease-out);
     }
     .omnibar:focus-within {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+      border-color: var(--crimson);
     }
     .omnibar svg.icon {
       width: 14px;
@@ -211,8 +192,8 @@
       color: var(--ink-muted);
       padding: 1px 5px;
       border-radius: 4px;
-      border: 1px solid var(--border-structure);
-      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--charcoal-border);
+      background-color: var(--forest);
     }
 
     .top-actions {
@@ -226,10 +207,10 @@
       position: relative;
       height: 34px;
       min-width: 36px;
-      padding: 0 8px;
+      padding: 0 9px;
       border-radius: var(--r-control);
-      border: none;
-      background: transparent;
+      border: 1px solid transparent;
+      background-color: transparent;
       color: var(--ink-secondary);
       display: inline-flex;
       align-items: center;
@@ -238,7 +219,7 @@
       font-family: var(--font-mono);
       font-size: 10.5px;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), background-color 140ms ease, color 140ms ease;
+      transition: transform 140ms var(--ease-out), background-color 140ms ease, color 140ms ease, border-color 140ms ease;
     }
     .icon-trigger::after {
       content: "";
@@ -246,75 +227,49 @@
       inset: -3px;
     }
     .icon-trigger:hover {
-      background: var(--surface-hover);
+      background-color: var(--forest-panel);
+      border-color: var(--forest-border);
       color: var(--ink-primary);
     }
     .icon-trigger:active {
       transform: scale(0.96);
     }
     .icon-trigger.active {
-      color: var(--signal-a);
-      background: var(--signal-a-soft);
+      color: var(--ink-primary);
+      background-color: var(--forest-panel);
+      border-color: var(--crimson);
+    }
+    .icon-trigger.speaking {
+      color: #ffffff;
+      background-color: var(--crimson);
+      border-color: var(--crimson);
     }
     .icon-trigger .key-dot {
       position: absolute;
-      top: 6px;
-      right: 6px;
+      top: 5px;
+      right: 5px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--signal-warn);
+      background-color: var(--crimson);
     }
 
-    .eq-bars {
-      display: none;
-      align-items: flex-end;
-      gap: 2px;
-      height: 13px;
-    }
-    .eq-bars.inline {
-      display: inline-flex;
-    }
-    .icon-trigger.speaking .speaker-svg,
-    .icon-trigger.speaking .mute-svg { display: none !important; }
-    .icon-trigger.speaking .eq-bars { display: inline-flex; }
-    .icon-trigger.speaking {
-      color: var(--signal-a);
-      background: var(--signal-a-soft);
-    }
-    .eq-bars span {
-      width: 2px;
-      background: currentColor;
-      border-radius: 1px;
-      animation: eqBounce 0.72s ease-in-out infinite;
-    }
-    .eq-bars span:nth-child(1) { height: 5px; animation-delay: 0s; }
-    .eq-bars span:nth-child(2) { height: 12px; animation-delay: 0.14s; }
-    .eq-bars span:nth-child(3) { height: 7px; animation-delay: 0.28s; }
-    @keyframes eqBounce {
-      0%, 100% { transform: scaleY(0.42); }
-      50% { transform: scaleY(1); }
-    }
-
-    /* =========================================================================
-       Split Workspace
-       ========================================================================= */
     .workspace {
       display: grid;
-      grid-template-columns: 500px 1fr;
-      height: calc(100vh - 50px);
+      grid-template-columns: 520px 1fr;
+      height: calc(100vh - 52px);
       overflow: hidden;
     }
 
     @media (max-width: 1080px) {
-      .workspace { grid-template-columns: 430px 1fr; }
+      .workspace { grid-template-columns: 440px 1fr; }
     }
 
     .deck-pane {
       display: flex;
       flex-direction: column;
-      background: var(--surface-deck);
-      border-right: 1px solid var(--border-structure);
+      background-color: var(--forest);
+      border-right: 1px solid var(--forest-border);
       min-height: 0;
     }
 
@@ -324,7 +279,7 @@
       justify-content: space-between;
       height: 42px;
       padding: 0 18px;
-      border-bottom: 1px solid var(--border-structure);
+      border-bottom: 1px solid var(--forest-border);
       flex-shrink: 0;
     }
 
@@ -359,8 +314,7 @@
       right: 0;
       bottom: -1px;
       height: 2px;
-      background: var(--signal-a);
-      border-radius: 2px 2px 0 0;
+      background-color: var(--crimson);
     }
 
     .compare-count {
@@ -368,8 +322,9 @@
       font-size: 10px;
       padding: 1px 5px;
       border-radius: 4px;
-      background: var(--signal-b-soft);
-      color: var(--signal-b);
+      background-color: var(--forest-panel);
+      border: 1px solid var(--forest-border);
+      color: var(--ink-secondary);
     }
 
     .quiet-tools {
@@ -388,11 +343,11 @@
       display: inline-grid;
       place-items: center;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), color 140ms ease, background-color 140ms ease;
+      transition: transform 140ms var(--ease-out), color 140ms ease, background-color 140ms ease;
     }
     .micro-icon-btn:hover {
       color: var(--ink-primary);
-      background: var(--surface-hover);
+      background-color: var(--forest-panel);
     }
     .micro-icon-btn:active {
       transform: scale(0.96);
@@ -401,16 +356,51 @@
     .deck-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 18px 28px;
+      padding: 18px 18px 28px;
     }
 
     .sample-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       font-size: 11px;
       color: var(--ink-muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .device-hero {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 16px;
+      align-items: stretch;
+      padding: 14px;
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
+      border-radius: var(--r-bento-shell);
+    }
+
+    .phone-photo-frame {
+      width: 112px;
+      height: 144px;
+      border-radius: var(--r-inner);
+      background-color: #ffffff;
+      border: 1px solid var(--charcoal-border);
+      padding: 8px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .phone-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
     }
 
     .device-eyebrow {
@@ -418,30 +408,27 @@
       align-items: center;
       justify-content: space-between;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       text-transform: uppercase;
       letter-spacing: 0.07em;
       color: var(--ink-secondary);
-      margin-bottom: 4px;
     }
 
     .status-signal {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      color: var(--signal-pos);
-      font-size: 10.5px;
-    }
-    .status-signal::before {
-      content: "";
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: currentColor;
+      color: var(--ink-primary);
+      padding: 1px 7px;
+      border-radius: 4px;
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
+      font-size: 10px;
     }
 
     .device-title {
-      font-size: 22px;
+      margin-top: 4px;
+      font-size: 20px;
       font-weight: 700;
       letter-spacing: -0.025em;
       line-height: 1.2;
@@ -451,24 +438,23 @@
 
     .device-tagline {
       margin-top: 4px;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--ink-secondary);
+      line-height: 1.4;
       text-wrap: pretty;
     }
 
-    .ticker-strip {
+    .hero-metrics {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: var(--r-inner);
-      background: var(--surface-panel);
-      box-shadow: inset 0 0 0 1px var(--border-subtle);
-      gap: 12px;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--charcoal-border);
     }
 
     .ticker-cell-label {
-      font-size: 10px;
+      font-size: 9.5px;
       font-family: var(--font-mono);
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -477,18 +463,20 @@
 
     .ticker-cell-val {
       margin-top: 2px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--ink-primary);
     }
-    .ticker-cell-val.price { color: var(--signal-a); }
+    .ticker-cell-val.price {
+      color: #f5f5f5;
+    }
 
     .telemetry-block {
-      margin-top: 16px;
+      margin-top: 14px;
       padding: 14px;
       border-radius: var(--r-bento-shell);
-      background: var(--surface-panel);
-      box-shadow: inset 0 0 0 1px var(--border-subtle);
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
       display: grid;
       grid-template-columns: 168px 1fr;
       align-items: center;
@@ -521,16 +509,16 @@
     .score-track {
       height: 4px;
       border-radius: 2px;
-      background: rgba(255, 255, 255, 0.06);
+      background-color: #262626;
       overflow: hidden;
     }
 
     .score-fill {
       height: 100%;
       border-radius: 2px;
-      background: linear-gradient(90deg, rgba(56, 189, 248, 0.55), var(--signal-a));
+      background-color: var(--crimson);
       transform-origin: left center;
-      transition: transform 320ms var(--ease-out-quart);
+      transition: transform 280ms var(--ease-out);
     }
 
     .score-num {
@@ -541,7 +529,7 @@
     }
 
     .section-caption {
-      margin: 18px 0 8px;
+      margin: 16px 0 8px;
       font-family: var(--font-mono);
       font-size: 10.5px;
       text-transform: uppercase;
@@ -552,8 +540,8 @@
     .bento-shell {
       padding: 4px;
       border-radius: var(--r-bento-shell);
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
+      background-color: var(--forest-panel);
+      border: 1px solid var(--forest-border);
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 4px;
@@ -562,7 +550,8 @@
     .spec-cell {
       padding: 10px 11px;
       border-radius: var(--r-inner);
-      background: var(--surface-panel);
+      background-color: var(--charcoal);
+      border: 1px solid #222222;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -582,8 +571,7 @@
     .spec-cell-head svg.icon {
       width: 13px;
       height: 13px;
-      color: var(--signal-a);
-      opacity: 0.85;
+      color: var(--crimson);
     }
 
     .spec-cell-body {
@@ -603,8 +591,8 @@
     .signal-card {
       padding: 12px 13px;
       border-radius: var(--r-inner);
-      background: var(--surface-panel);
-      box-shadow: inset 0 0 0 1px var(--border-subtle);
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
     }
 
     .signal-list {
@@ -627,33 +615,35 @@
 
     .sig-marker {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       margin-top: 1px;
       flex-shrink: 0;
     }
-    .sig-marker.pos { color: var(--signal-pos); }
-    .sig-marker.warn { color: var(--signal-warn); }
+    .sig-marker.pos { color: #4ba376; }
+    .sig-marker.warn { color: var(--crimson); }
 
     .verdict-note {
       margin-top: 12px;
       padding: 11px 13px;
-      border-left: 2px solid var(--signal-a);
-      background: rgba(56, 189, 248, 0.04);
+      border-left: 2px solid var(--crimson);
+      background-color: var(--charcoal);
+      border-top: 1px solid var(--forest-border);
+      border-right: 1px solid var(--forest-border);
+      border-bottom: 1px solid var(--forest-border);
       border-radius: 0 var(--r-control) var(--r-control) 0;
       font-size: 12px;
       color: var(--ink-secondary);
       text-wrap: pretty;
     }
 
-    /* Compare View */
     .compare-omnibar {
       display: grid;
       grid-template-columns: 1fr auto 1fr auto;
       align-items: center;
       gap: 6px;
       padding: 4px;
-      background: var(--surface-panel);
-      border: 1px solid var(--border-structure);
+      background-color: var(--forest-panel);
+      border: 1px solid var(--forest-border);
       border-radius: var(--r-bento-shell);
       margin-bottom: 14px;
     }
@@ -663,14 +653,14 @@
       height: 30px;
       padding: 0 9px;
       border-radius: var(--r-inner);
-      border: 1px solid transparent;
-      background: var(--surface-app);
+      border: 1px solid var(--charcoal-border);
+      background-color: var(--charcoal);
       color: var(--ink-primary);
       font-family: var(--font-sans);
       font-size: 12px;
       outline: none;
     }
-    .compare-omnibar input:focus { border-color: var(--border-focus); }
+    .compare-omnibar input:focus { border-color: var(--crimson); }
     .vs-divider {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -682,14 +672,14 @@
       width: 32px;
       border-radius: var(--r-inner);
       border: none;
-      background: var(--surface-elevated);
-      color: var(--ink-primary);
+      background-color: var(--crimson);
+      color: #ffffff;
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), background-color 140ms ease;
+      transition: transform 140ms var(--ease-out), background-color 140ms ease;
     }
-    .compare-go:hover { background: rgba(56, 189, 248, 0.2); color: var(--signal-a); }
+    .compare-go:hover { background-color: var(--crimson-hover); }
     .compare-go:active { transform: scale(0.96); }
 
     .compare-legend {
@@ -700,10 +690,30 @@
     }
 
     .legend-card {
-      padding: 10px 12px;
+      padding: 10px;
       border-radius: var(--r-inner);
-      background: var(--surface-panel);
-      box-shadow: inset 0 0 0 1px var(--border-subtle);
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
+      display: grid;
+      grid-template-columns: 50px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .legend-thumb {
+      width: 50px;
+      height: 64px;
+      border-radius: 6px;
+      background-color: #ffffff;
+      border: 1px solid var(--charcoal-border);
+      padding: 4px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .legend-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
     .legend-dot {
       display: inline-block;
@@ -712,14 +722,14 @@
       border-radius: 50%;
       margin-right: 6px;
     }
-    .legend-name { font-weight: 600; font-size: 13px; color: var(--ink-primary); }
-    .legend-sub { margin-top: 3px; font-size: 11px; color: var(--ink-secondary); }
+    .legend-name { font-weight: 600; font-size: 12.5px; color: var(--ink-primary); line-height: 1.25; }
+    .legend-sub { margin-top: 4px; font-size: 11px; color: var(--ink-secondary); }
 
     .dual-radar-box {
       padding: 12px;
       border-radius: var(--r-bento-shell);
-      background: var(--surface-panel);
-      box-shadow: inset 0 0 0 1px var(--border-subtle);
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
       display: grid;
       grid-template-columns: 170px 1fr;
       align-items: center;
@@ -729,19 +739,20 @@
     .delta-table { display: flex; flex-direction: column; gap: 6px; }
     .delta-row {
       display: grid;
-      grid-template-columns: 74px 1fr auto;
+      grid-template-columns: 68px 1fr auto;
       align-items: center;
       font-size: 11.5px;
       gap: 6px;
     }
     .delta-pair { display: flex; align-items: center; gap: 6px; }
-    .val-a { color: var(--signal-a); font-weight: 600; }
-    .val-b { color: var(--signal-b); font-weight: 600; }
+    .val-a { color: #e05251; font-weight: 600; }
+    .val-b { color: var(--compare-b); font-weight: 600; }
     .delta-badge {
-      font-size: 10.5px;
-      padding: 1px 5px;
+      font-size: 10px;
+      padding: 1px 6px;
       border-radius: 4px;
-      background: rgba(255, 255, 255, 0.04);
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
       color: var(--ink-secondary);
     }
 
@@ -749,12 +760,12 @@
       margin-top: 14px;
       border-radius: var(--r-bento-shell);
       overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      background: var(--surface-panel);
+      border: 1px solid var(--forest-border);
+      background-color: var(--charcoal);
     }
 
     .matrix-row {
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid #232323;
       padding: 9px 12px;
     }
     .matrix-row:last-child { border-bottom: none; }
@@ -775,16 +786,13 @@
     }
     .matrix-cols > div:first-child {
       padding-right: 10px;
-      border-right: 1px solid var(--border-subtle);
+      border-right: 1px solid #262626;
     }
 
-    /* =========================================================================
-       RIGHT PANE: ANALYST STREAM + WORD-SYNCHRONIZED VOICE REVEAL
-       ========================================================================= */
     .stream-pane {
       display: flex;
       flex-direction: column;
-      background: var(--surface-app);
+      background-color: var(--charcoal);
       min-height: 0;
       position: relative;
     }
@@ -795,7 +803,8 @@
       justify-content: space-between;
       height: 42px;
       padding: 0 22px;
-      border-bottom: 1px solid var(--border-structure);
+      background-color: var(--charcoal);
+      border-bottom: 1px solid var(--charcoal-border);
       flex-shrink: 0;
     }
 
@@ -807,6 +816,10 @@
       color: var(--ink-secondary);
     }
     .stream-context strong { color: var(--ink-primary); font-weight: 600; }
+
+    .stream-pane .micro-icon-btn:hover {
+      background-color: var(--charcoal-hover);
+    }
 
     .stream-feed {
       flex: 1;
@@ -822,17 +835,17 @@
       gap: 20px;
     }
 
-    .editorial-welcome { padding: 18px 0 8px; }
+    .editorial-welcome { padding: 14px 0 8px; }
     .welcome-kicker {
       font-family: var(--font-mono);
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--signal-a);
+      color: var(--crimson);
       margin-bottom: 8px;
     }
     .welcome-heading {
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 600;
       letter-spacing: -0.025em;
       color: var(--ink-primary);
@@ -848,7 +861,7 @@
 
     .index-list {
       margin-top: 22px;
-      border-top: 1px solid var(--border-structure);
+      border-top: 1px solid var(--charcoal-border);
     }
 
     .index-item {
@@ -857,18 +870,18 @@
       grid-template-columns: 1fr auto auto;
       align-items: center;
       gap: 16px;
-      padding: 11px 8px;
+      padding: 12px 10px;
       background: transparent;
       border: none;
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid #222222;
       color: var(--ink-primary);
       text-align: left;
       cursor: pointer;
-      transition: background-color 140ms ease, padding-left 160ms var(--ease-out-quart);
+      transition: background-color 140ms ease, padding-left 160ms var(--ease-out);
     }
     .index-item:hover {
-      background: var(--surface-hover);
-      padding-left: 14px;
+      background-color: var(--forest);
+      padding-left: 16px;
     }
     .index-item-title { font-size: 13px; font-weight: 500; }
     .index-item-spec {
@@ -878,10 +891,10 @@
     }
     .index-item-arrow {
       color: var(--ink-muted);
-      transition: transform 160ms var(--ease-out-quart), color 140ms ease;
+      transition: transform 160ms var(--ease-out), color 140ms ease;
     }
     .index-item:hover .index-item-arrow {
-      color: var(--signal-a);
+      color: var(--crimson);
       transform: translateX(3px);
     }
 
@@ -889,24 +902,17 @@
       align-self: flex-end;
       max-width: 82%;
       padding: 10px 14px;
-      border-radius: 14px 14px 4px 14px;
-      background: var(--surface-elevated);
-      box-shadow: inset 0 0 0 1px var(--border-structure);
+      border-radius: 12px 12px 2px 12px;
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
       color: var(--ink-primary);
       font-size: 13.5px;
       line-height: 1.48;
-      animation: turnEnter 180ms var(--ease-out-quart);
     }
 
     .turn-ai {
       padding-bottom: 18px;
-      border-bottom: 1px solid var(--border-subtle);
-      animation: turnEnter 200ms var(--ease-out-quart);
-    }
-
-    @keyframes turnEnter {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      border-bottom: 1px solid #222222;
     }
 
     .turn-ai-head {
@@ -919,7 +925,7 @@
     .turn-ai-meta {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 11.5px;
       color: var(--ink-muted);
     }
@@ -929,20 +935,21 @@
       font-size: 12px;
     }
     .verified-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: var(--signal-pos);
+      color: var(--ink-secondary);
       font-family: var(--font-mono);
       font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
     }
     .live-voice-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--signal-a);
+      color: var(--ink-primary);
       font-family: var(--font-mono);
       font-size: 10.5px;
+      padding: 1px 7px;
+      border-radius: 4px;
+      background-color: var(--crimson);
     }
 
     .turn-actions {
@@ -950,25 +957,18 @@
       align-items: center;
       gap: 2px;
       opacity: 0;
-      transition: opacity 150ms var(--ease-out-quart);
+      transition: opacity 150ms var(--ease-out);
     }
     .turn-ai:hover .turn-actions,
     .turn-actions:focus-within {
       opacity: 1;
     }
 
-    /* Word-by-Word Live Synchronized Reveal Styling */
     .voice-prep-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       padding: 4px 0;
       font-family: var(--font-mono);
       font-size: 11.5px;
       color: var(--ink-muted);
-    }
-    .voice-prep-indicator .eq-bars {
-      color: var(--signal-a);
     }
 
     .sync-line.pending {
@@ -980,7 +980,7 @@
 
     .w-tok {
       opacity: 0;
-      transition: opacity 110ms var(--ease-out-quart), color 110ms ease;
+      transition: opacity 100ms var(--ease-out), color 100ms ease;
     }
     .w-tok.revealed {
       opacity: 1;
@@ -988,11 +988,10 @@
     .w-tok.speaking-word {
       opacity: 1;
       color: #ffffff;
-      text-shadow: 0 0 14px rgba(56, 189, 248, 0.42);
     }
 
     .prose {
-      color: #dce1ec;
+      color: #d9dfdc;
       font-size: 13.5px;
       line-height: 1.62;
       text-wrap: pretty;
@@ -1027,7 +1026,7 @@
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: var(--signal-a);
+      background-color: var(--crimson);
     }
     .prose strong {
       color: var(--ink-primary);
@@ -1039,47 +1038,45 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      opacity: 1;
-      transition: opacity 220ms var(--ease-out-quart);
     }
-    .sources-line.hidden { opacity: 0; pointer-events: none; height: 0; margin: 0; overflow: hidden; }
+    .sources-line.hidden { display: none; }
     .source-link {
       font-family: var(--font-mono);
       font-size: 10.5px;
-      color: var(--ink-muted);
+      color: var(--ink-secondary);
       text-decoration: none;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 4px;
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid var(--border-subtle);
-      transition: color 140ms ease, border-color 140ms ease;
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
+      transition: border-color 140ms ease, color 140ms ease;
     }
     .source-link:hover {
-      color: var(--signal-a);
-      border-color: rgba(56, 189, 248, 0.3);
+      color: var(--ink-primary);
+      border-color: var(--crimson);
     }
 
-    /* Concentric Bottom Composer */
     .composer-dock {
-      padding: 10px 24px 16px;
-      background: linear-gradient(to top, var(--surface-app) 75%, transparent);
+      padding: 12px 24px 16px;
+      background-color: var(--charcoal);
+      border-top: 1px solid #202020;
     }
 
     .composer-shell {
       max-width: 760px;
       margin: 0 auto;
-      background: var(--surface-panel);
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
       border-radius: var(--r-composer);
       padding: 6px 6px 6px 14px;
-      box-shadow: var(--shadow-surface);
       display: grid;
       grid-template-columns: 1fr auto auto;
       align-items: center;
       gap: 8px;
-      transition: box-shadow 160ms var(--ease-out-quart);
+      transition: border-color 140ms var(--ease-out);
     }
     .composer-shell:focus-within {
-      box-shadow: 0 0 0 1px var(--border-focus), 0 12px 32px -8px rgba(0, 0, 0, 0.7);
+      border-color: var(--crimson);
     }
 
     .composer-input {
@@ -1097,17 +1094,17 @@
     .inline-model-tag {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--ink-muted);
-      background: transparent;
-      border: none;
-      padding: 4px 8px;
+      color: var(--ink-secondary);
+      background-color: var(--charcoal);
+      border: 1px solid var(--charcoal-border);
+      padding: 5px 9px;
       border-radius: var(--r-micro);
       cursor: pointer;
-      transition: color 140ms ease, background-color 140ms ease;
+      transition: color 140ms ease, border-color 140ms ease;
     }
     .inline-model-tag:hover {
       color: var(--ink-primary);
-      background: var(--surface-hover);
+      border-color: var(--crimson);
     }
 
     .send-action {
@@ -1115,51 +1112,45 @@
       height: 36px;
       border-radius: var(--r-inner);
       border: none;
-      background: var(--ink-primary);
-      color: var(--surface-app);
+      background-color: var(--crimson);
+      color: #ffffff;
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), opacity 140ms ease;
+      transition: transform 140ms var(--ease-out), background-color 140ms ease;
     }
-    .send-action:hover { opacity: 0.9; }
+    .send-action:hover { background-color: var(--crimson-hover); }
     .send-action:active { transform: scale(0.96); }
-    .send-action:disabled { opacity: 0.35; cursor: not-allowed; }
+    .send-action:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* =========================================================================
-       Modal Settings Sheet
-       ========================================================================= */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(4, 6, 10, 0.72);
-      backdrop-filter: blur(6px);
+      background-color: rgba(10, 10, 10, 0.84);
       display: grid;
       place-items: center;
       z-index: 100;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 180ms var(--ease-out-quart);
+      transition: opacity 160ms var(--ease-out);
     }
     .modal-backdrop.open { opacity: 1; pointer-events: auto; }
 
     .modal-sheet {
-      width: min(520px, 92vw);
-      background: var(--surface-deck);
+      width: min(540px, 92vw);
+      background-color: var(--forest);
+      border: 1px solid var(--forest-border);
       border-radius: var(--r-modal);
-      box-shadow: var(--shadow-modal);
       overflow: hidden;
-      transform: translateY(8px) scale(0.98);
-      transition: transform 200ms var(--ease-out-quart);
     }
-    .modal-backdrop.open .modal-sheet { transform: translateY(0) scale(1); }
 
     .modal-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 22px 14px;
-      border-bottom: 1px solid var(--border-structure);
+      padding: 16px 22px;
+      background-color: var(--charcoal);
+      border-bottom: 1px solid var(--forest-border);
     }
     .modal-head h2 {
       font-size: 15px;
@@ -1186,10 +1177,10 @@
     .ext-link {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--signal-a);
-      text-decoration: none;
+      color: var(--ink-primary);
+      text-decoration: underline;
+      text-decoration-color: var(--crimson);
     }
-    .ext-link:hover { text-decoration: underline; }
 
     .key-input-shell {
       display: flex;
@@ -1197,10 +1188,10 @@
       gap: 4px;
       padding: 4px;
       border-radius: var(--r-inner);
-      background: var(--surface-app);
-      border: 1px solid var(--border-structure);
+      background-color: var(--charcoal);
+      border: 1px solid var(--forest-border);
     }
-    .key-input-shell:focus-within { border-color: var(--border-focus); }
+    .key-input-shell:focus-within { border-color: var(--crimson); }
     .key-input-shell input {
       flex: 1;
       height: 30px;
@@ -1217,22 +1208,29 @@
       height: 30px;
       padding: 0 10px;
       border-radius: var(--r-micro);
-      border: none;
-      background: var(--surface-elevated);
+      border: 1px solid var(--charcoal-border);
+      background-color: var(--charcoal-elevated);
       color: var(--ink-primary);
       font-family: var(--font-sans);
       font-size: 11.5px;
       font-weight: 500;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), background-color 140ms ease;
+      white-space: nowrap;
+      transition: transform 140ms var(--ease-out), border-color 140ms ease, background-color 140ms ease;
     }
-    .shell-action:hover { background: rgba(255, 255, 255, 0.11); }
+    .shell-action:hover { border-color: var(--crimson); }
     .shell-action:active { transform: scale(0.96); }
+    .shell-action.playing {
+      background-color: var(--crimson);
+      border-color: var(--crimson);
+      color: #ffffff;
+    }
 
-    .select-row {
+    .voice-control-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
     }
 
     .native-select {
@@ -1240,13 +1238,13 @@
       height: 36px;
       padding: 0 32px 0 11px;
       border-radius: var(--r-control);
-      background-color: var(--surface-app);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ba3b4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-color: var(--charcoal);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a3ada7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
       appearance: none;
       -webkit-appearance: none;
-      border: 1px solid var(--border-structure);
+      border: 1px solid var(--forest-border);
       color: var(--ink-primary);
       font-family: var(--font-sans);
       font-size: 12.5px;
@@ -1254,9 +1252,14 @@
       cursor: pointer;
       transition: border-color 140ms ease;
     }
-    .native-select:focus { border-color: var(--border-focus); }
+    .native-select:focus { border-color: var(--crimson); }
 
-    .toggle-list { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+    .test-voice-btn {
+      height: 36px;
+      padding: 0 13px;
+    }
+
+    .toggle-list { display: flex; flex-direction: column; gap: 11px; padding-top: 2px; }
     .toggle-row {
       display: flex;
       align-items: center;
@@ -1272,25 +1275,29 @@
       width: 36px;
       height: 20px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      transition: background-color 150ms ease;
+      background-color: var(--charcoal);
+      border: 1px solid var(--charcoal-border);
+      transition: background-color 150ms ease, border-color 150ms ease;
       flex-shrink: 0;
     }
     .switch-thumb {
       position: absolute;
       top: 2px;
       left: 2px;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: var(--ink-primary);
-      transition: transform 160ms var(--ease-out-quart);
+      background-color: var(--ink-secondary);
+      transition: transform 160ms var(--ease-out), background-color 150ms ease;
     }
     input[type="checkbox"].sr-only { position: absolute; opacity: 0; pointer-events: none; }
-    input[type="checkbox"].sr-only:checked + .switch-track { background: var(--signal-a); }
+    input[type="checkbox"].sr-only:checked + .switch-track {
+      background-color: var(--crimson);
+      border-color: var(--crimson);
+    }
     input[type="checkbox"].sr-only:checked + .switch-track .switch-thumb {
       transform: translateX(16px);
-      background: #061018;
+      background-color: #ffffff;
     }
 
     .modal-foot {
@@ -1298,8 +1305,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 14px 22px;
-      background: var(--surface-app);
-      border-top: 1px solid var(--border-structure);
+      background-color: var(--charcoal);
+      border-top: 1px solid var(--forest-border);
     }
     .modal-feedback { font-size: 11.5px; color: var(--ink-secondary); }
     .primary-save {
@@ -1307,15 +1314,15 @@
       padding: 0 16px;
       border-radius: var(--r-control);
       border: none;
-      background: var(--ink-primary);
-      color: var(--surface-app);
+      background-color: var(--crimson);
+      color: #ffffff;
       font-family: var(--font-sans);
       font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 140ms var(--ease-out-quart), opacity 140ms ease;
+      transition: transform 140ms var(--ease-out), background-color 140ms ease;
     }
-    .primary-save:hover { opacity: 0.92; }
+    .primary-save:hover { background-color: var(--crimson-hover); }
     .primary-save:active { transform: scale(0.96); }
 
     .toast {
@@ -1324,22 +1331,20 @@
       left: 22px;
       padding: 8px 13px;
       border-radius: var(--r-control);
-      background: var(--surface-elevated);
-      box-shadow: var(--shadow-surface);
+      background-color: var(--charcoal);
+      border: 1px solid var(--crimson);
       font-size: 12px;
       color: var(--ink-primary);
       opacity: 0;
-      transform: translateY(8px);
       pointer-events: none;
-      transition: opacity 160ms var(--ease-out-quart), transform 160ms var(--ease-out-quart);
+      transition: opacity 150ms var(--ease-out);
       z-index: 200;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <!-- ================= TOP COMMAND HEADER ================= -->
     <header class="topbar">
       <div class="brand-cluster">
         <div class="brand-mark" aria-hidden="true">
@@ -1350,7 +1355,7 @@
         </div>
         <span class="brand-name">SpecDeck</span>
         <div class="telemetry-pill tabular" id="telemetryPill">
-          <span class="status-dot" id="statusDot"></span>
+          <span class="status-dot ready" id="statusDot"></span>
           <span id="telemetryText">READY</span>
         </div>
       </div>
@@ -1363,13 +1368,13 @@
         <input
           type="text"
           id="omniInput"
-          placeholder="Jump to device or compare (e.g. OnePlus 13 vs Pixel 9 Pro)..."
+          placeholder="Search mobile phone or compare (e.g. OnePlus 13 vs iPhone 16 Pro Max)..."
         />
         <span class="kbd-hint">⌘K</span>
       </form>
 
       <div class="top-actions">
-        <button class="icon-trigger active" id="voiceBtn" title="Live Voice + Text Sync (Click to mute or stop)">
+        <button class="icon-trigger active" id="voiceBtn" title="Synchronized Voice Output">
           <svg class="icon speaker-svg" viewBox="0 0 24 24">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -1380,23 +1385,19 @@
             <line x1="23" y1="9" x2="17" y2="15"></line>
             <line x1="17" y1="9" x2="23" y2="15"></line>
           </svg>
-          <span class="eq-bars" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </span>
-          <span id="voiceStateLabel">VOICE</span>
+          <span id="voiceStateLabel">VOICE ON</span>
         </button>
 
         <button class="icon-trigger" id="settingsBtn" title="Settings & API Key (Ctrl+,)">
           <svg class="icon" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
           <span class="key-dot" id="missingKeyDot" style="display: none;"></span>
         </button>
       </div>
     </header>
 
-    <!-- ================= MAIN 2-PANE SPLIT WORKSPACE ================= -->
     <main class="workspace">
       <aside class="deck-pane">
         <div class="pane-nav">
@@ -1429,9 +1430,9 @@
       <section class="stream-pane">
         <div class="stream-header">
           <div class="stream-context" id="streamContext">
-            <span>Analyst Session</span>
+            <span>Advisor Context</span>
             <span>·</span>
-            <strong id="activeContextLabel">Standby</strong>
+            <strong id="activeContextLabel">OnePlus 13</strong>
           </div>
           <button class="micro-icon-btn" id="resetThreadBtn" title="Reset Session">
             <svg class="icon" viewBox="0 0 24 24">
@@ -1451,7 +1452,7 @@
               type="text"
               class="composer-input"
               id="chatInput"
-              placeholder="Ask about any mobile phone, gaming thermals, camera optics, or compare..."
+              placeholder="Ask about any mobile phone, camera, gaming, battery, or compare two models..."
             />
             <button
               type="button"
@@ -1471,7 +1472,6 @@
     </main>
   </div>
 
-  <!-- ================= SETTINGS MODAL SHEET ================= -->
   <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true">
     <div class="modal-sheet">
       <div class="modal-head">
@@ -1500,14 +1500,16 @@
           </div>
         </div>
 
-        <div class="select-row">
-          <div class="field-group">
-            <div class="field-label-row"><span>Default Model</span></div>
-            <select class="native-select tabular" id="modelSelect"></select>
-          </div>
-          <div class="field-group">
-            <div class="field-label-row"><span>Neural Voice</span></div>
+        <div class="field-group">
+          <div class="field-label-row"><span>Default AI Model</span></div>
+          <select class="native-select tabular" id="modelSelect"></select>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row"><span>Neural Voice & Preview</span></div>
+          <div class="voice-control-row">
             <select class="native-select" id="voiceSelect"></select>
+            <button type="button" class="shell-action test-voice-btn" id="testVoiceBtn">Test Voice</button>
           </div>
         </div>
 
@@ -1515,7 +1517,7 @@
           <label class="toggle-row">
             <div>
               <div>Live Web Grounding</div>
-              <div class="toggle-sub">Fetch exact launch dates, prices & GSMArena specs via DuckDuckGo</div>
+              <div class="toggle-sub">Fetch launch dates, retail prices & GSMArena specs via DuckDuckGo</div>
             </div>
             <input type="checkbox" class="sr-only" id="webSearchToggle" checked />
             <span class="switch-track"><span class="switch-thumb"></span></span>
@@ -1524,7 +1526,7 @@
           <label class="toggle-row">
             <div>
               <div>Synchronized Voice + Word Reveal</div>
-              <div class="toggle-sub">Speak replies and reveal each word in real-time lockstep with the voice</div>
+              <div class="toggle-sub">Speak replies and reveal words one-by-one in lockstep with the voice</div>
             </div>
             <input type="checkbox" class="sr-only" id="autoVoiceToggle" checked />
             <span class="switch-track"><span class="switch-thumb"></span></span>
@@ -1577,18 +1579,19 @@
       compareCard: null,
       busy: false,
       syncSessionId: 0,
-      activeSyncTurn: null
+      activeSyncTurn: null,
+      testingVoice: false
     };
 
-    // Persistent Audio element unlocked on user gesture so autoplay never fails
     const syncAudio = new Audio();
     syncAudio.preload = 'auto';
+    const previewAudio = new Audio();
+    previewAudio.preload = 'auto';
     let audioUnlocked = false;
 
     function unlockAudioOnGesture() {
       if (audioUnlocked) return;
       try {
-        // Tiny silent WAV data URI to satisfy browser gesture requirement immediately
         syncAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
         syncAudio.volume = 0.01;
         const p = syncAudio.play();
@@ -1622,6 +1625,15 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function phoneImageUrl(card) {
+      if (!card || !card.name) return '';
+      const params = new URLSearchParams({
+        name: card.name,
+        brand: card.brand || ''
+      });
+      return `/api/phone-image?${params.toString()}`;
     }
 
     function renderMarkdown(md) {
@@ -1659,9 +1671,6 @@
       return html || '<p>Ready.</p>';
     }
 
-    // =========================================================================
-    // Word-Synchronized DOM Builder & Drift-Free Timestamp Aligner
-    // =========================================================================
     function buildWordSyncedFragment(markdownSegment) {
       const temp = document.createElement('div');
       temp.innerHTML = renderMarkdown(markdownSegment);
@@ -1714,7 +1723,6 @@
       const M = wordItems.length;
       if (!M) return;
 
-      // Expand any multi-word boundary (e.g. "6000 mAh" -> ["6000", "mAh"])
       const expanded = [];
       for (const b of (rawBoundaries || [])) {
         const subParts = String(b.text || '').trim().split(/\s+/).filter(Boolean);
@@ -1743,7 +1751,6 @@
         return;
       }
 
-      // Greedy monotonic subsequence anchor matching
       const anchors = new Array(M).fill(null);
       let bIdx = 0;
 
@@ -1768,7 +1775,6 @@
         expanded[expanded.length - 1].end_ms + 80
       );
 
-      // Interpolate any unanchored symbols/tokens smoothly between anchored neighbors
       let i = 0;
       while (i < M) {
         if (anchors[i]) {
@@ -1779,7 +1785,7 @@
         }
         const gapStart = i;
         while (i < M && !anchors[i]) i++;
-        const gapEnd = i; // first anchored after gap, or M
+        const gapEnd = i;
         const leftMs = gapStart > 0 ? wordItems[gapStart - 1].endMs : Math.max(0, expanded[0].offset_ms - 40);
         const rightMs = gapEnd < M ? anchors[gapEnd].startMs : finalEndMs;
         const count = gapEnd - gapStart;
@@ -1792,7 +1798,6 @@
         }
       }
 
-      // Guarantee non-decreasing timestamps
       for (let k = 1; k < M; k++) {
         if (wordItems[k].startMs < wordItems[k - 1].startMs) {
           wordItems[k].startMs = wordItems[k - 1].startMs;
@@ -1810,7 +1815,6 @@
       return URL.createObjectURL(new Blob([bytes], { type: mime }));
     }
 
-    // Play a single segment's audio while revealing its words in real-time 60fps lockstep
     function playSegmentInLockstep(seg, proseEl, sessionId) {
       return new Promise((resolve) => {
         if (sessionId !== state.syncSessionId) return resolve();
@@ -1827,7 +1831,6 @@
           });
         };
 
-        // Fallback progressive cadence if audio_b64 unavailable (e.g., offline)
         const runTimedFallback = (msPerWord = 42) => {
           let idx = 0;
           const tick = () => {
@@ -1874,7 +1877,6 @@
           if (finished || sessionId !== state.syncSessionId) {
             return finishSegment();
           }
-          // +30ms perceptual sync lead so word light-up and phoneme onset feel simultaneous
           const nowMs = syncAudio.currentTime * 1000 + 30;
           let scrolledThisFrame = false;
 
@@ -1922,7 +1924,6 @@
       });
     }
 
-    // Progressive fast word stream when Voice Sync is muted
     async function streamWordsSilent(markdown, proseEl, sessionId) {
       const { fragment, wordItems } = buildWordSyncedFragment(markdown);
       proseEl.innerHTML = '';
@@ -1937,7 +1938,7 @@
         }
         w.span.classList.add('revealed');
         if (i % 2 === 0) {
-          await new Promise((r) => setTimeout(r, 22));
+          await new Promise((r) => setTimeout(r, 20));
         }
       }
     }
@@ -1957,15 +1958,72 @@
           proseEl.innerHTML = renderMarkdown(fullReply);
         }
         if (liveTagEl) liveTagEl.remove();
-        if (sourcesEl) sourcesEl.classList.remove('hidden');
+        if (sourcesEl && sourcesEl.innerHTML) sourcesEl.classList.remove('hidden');
         state.activeSyncTurn = null;
       }
       setSpeakingUI(false);
     }
 
-    // =========================================================================
-    // 5-Axis SVG Hardware Radar Generator
-    // =========================================================================
+    function stopVoicePreview() {
+      state.testingVoice = false;
+      try {
+        previewAudio.pause();
+        previewAudio.removeAttribute('src');
+      } catch (_e) {}
+      const btn = el('testVoiceBtn');
+      if (btn) {
+        btn.textContent = 'Test Voice';
+        btn.classList.remove('playing');
+      }
+    }
+
+    async function handleTestVoice() {
+      unlockAudioOnGesture();
+      if (state.testingVoice) {
+        stopVoicePreview();
+        el('modalFeedback').textContent = 'Voice preview stopped.';
+        return;
+      }
+      stopActiveSync(true);
+      const selectedVoice = el('voiceSelect').value || state.voiceId;
+      const btn = el('testVoiceBtn');
+      state.testingVoice = true;
+      btn.textContent = 'Stop';
+      btn.classList.add('playing');
+      el('modalFeedback').textContent = 'Synthesizing voice sample…';
+
+      try {
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: 'SpecDeck voice check ready. Synchronized smartphone analysis is active.',
+            voice: selectedVoice
+          })
+        });
+        if (!res.ok) throw new Error('Preview failed');
+        const blob = await res.blob();
+        if (!state.testingVoice) return;
+        const url = URL.createObjectURL(blob);
+        previewAudio.onended = () => {
+          URL.revokeObjectURL(url);
+          stopVoicePreview();
+          el('modalFeedback').textContent = 'Voice sample complete.';
+        };
+        previewAudio.onerror = () => {
+          URL.revokeObjectURL(url);
+          stopVoicePreview();
+          el('modalFeedback').textContent = 'Could not play audio sample.';
+        };
+        previewAudio.src = url;
+        el('modalFeedback').textContent = 'Playing neural voice preview…';
+        await previewAudio.play();
+      } catch (_err) {
+        stopVoicePreview();
+        el('modalFeedback').textContent = 'Voice preview failed — check internet connection.';
+      }
+    }
+
     function buildRadarSvg(scoresA, scoresB = null) {
       const axes = [
         { key: 'performance', label: 'PERF', anchor: 'middle', dx: 0, dy: -3 },
@@ -1984,7 +2042,7 @@
       let rings = '';
       for (const frac of [0.35, 0.68, 1.0]) {
         const pts = axes.map((_, i) => pt(maxR * frac, i).join(',')).join(' ');
-        rings += `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+        rings += `<polygon points="${pts}" fill="none" stroke="#2c332f" stroke-width="1"/>`;
       }
 
       let spokes = '';
@@ -1994,8 +2052,8 @@
         const [lx, ly] = pt(maxR + 7, i);
         const fx = (Number(lx) + ax.dx).toFixed(1);
         const fy = (Number(ly) + ax.dy).toFixed(1);
-        spokes += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
-        labels += `<text x="${fx}" y="${fy}" fill="#767f94" font-family="var(--font-mono)" font-size="8.5" text-anchor="${ax.anchor}" dominant-baseline="middle">${ax.label}</text>`;
+        spokes += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#262c29" stroke-width="1"/>`;
+        labels += `<text x="${fx}" y="${fy}" fill="#8a9690" font-family="var(--font-mono)" font-size="8.5" text-anchor="${ax.anchor}" dominant-baseline="middle">${ax.label}</text>`;
       });
 
       const polyFor = (sc, stroke, fill) => {
@@ -2006,17 +2064,14 @@
         return `<polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="1.6"/>`;
       };
 
-      const polyB = scoresB ? polyFor(scoresB, '#a78bfa', 'rgba(167,139,250,0.16)') : '';
-      const polyA = polyFor(scoresA, '#38bdf8', 'rgba(56,189,248,0.20)');
+      const polyB = scoresB ? polyFor(scoresB, '#d6dfd9', 'rgba(214,223,217,0.14)') : '';
+      const polyA = polyFor(scoresA, '#a31c1b', 'rgba(163,28,27,0.22)');
 
       return `<svg width="168" height="160" viewBox="0 0 168 160" aria-label="Hardware Telemetry Radar">
         ${rings}${spokes}${polyB}${polyA}${labels}
       </svg>`;
     }
 
-    // =========================================================================
-    // Left Telemetry Deck Rendering
-    // =========================================================================
     function renderDeck() {
       const box = el('deckContainer');
       const a = state.primaryCard;
@@ -2070,30 +2125,40 @@
       `).join('');
 
       const goodHtml = (card.good_for || []).map((g) =>
-        `<li><span class="sig-marker pos">▲</span><span>${escapeHtml(g)}</span></li>`
+        `<li><span class="sig-marker pos">+</span><span>${escapeHtml(g)}</span></li>`
       ).join('');
 
       const skipHtml = (card.skip_if || []).map((s) =>
-        `<li><span class="sig-marker warn">▼</span><span>${escapeHtml(s)}</span></li>`
+        `<li><span class="sig-marker warn">−</span><span>${escapeHtml(s)}</span></li>`
       ).join('');
 
-      box.innerHTML = `
-        ${state.previewMode ? '<div class="sample-tag">Reference Datasheet · Query any phone to load live telemetry</div>' : ''}
-        <div class="device-eyebrow">
-          <span>${escapeHtml(card.brand || 'SMARTPHONE')}</span>
-          <span class="status-signal">${escapeHtml(card.status || 'Available')}</span>
-        </div>
-        <h1 class="device-title">${escapeHtml(card.name)}</h1>
-        ${card.tagline ? `<p class="device-tagline">${escapeHtml(card.tagline)}</p>` : ''}
+      const imgSrc = phoneImageUrl(card);
 
-        <div class="ticker-strip">
-          <div>
-            <div class="ticker-cell-label">Launch Window</div>
-            <div class="ticker-cell-val tabular">${escapeHtml(card.launch_date || '—')}</div>
+      box.innerHTML = `
+        ${state.previewMode ? '<div class="sample-tag">Reference Device · Ask about any mobile phone to load its GSMArena image & specs</div>' : ''}
+        <div class="device-hero">
+          <div class="phone-photo-frame">
+            <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(card.name)}" loading="eager" />
           </div>
-          <div>
-            <div class="ticker-cell-label">Launch / Retail MSRP</div>
-            <div class="ticker-cell-val price tabular">${escapeHtml(card.price_estimate || '—')}</div>
+          <div class="hero-meta">
+            <div>
+              <div class="device-eyebrow">
+                <span>${escapeHtml(card.brand || 'SMARTPHONE')}</span>
+                <span class="status-signal">${escapeHtml(card.status || 'Available')}</span>
+              </div>
+              <h1 class="device-title">${escapeHtml(card.name)}</h1>
+              ${card.tagline ? `<p class="device-tagline">${escapeHtml(card.tagline)}</p>` : ''}
+            </div>
+            <div class="hero-metrics">
+              <div>
+                <div class="ticker-cell-label">Launch</div>
+                <div class="ticker-cell-val tabular">${escapeHtml(card.launch_date || '—')}</div>
+              </div>
+              <div>
+                <div class="ticker-cell-label">Retail Price</div>
+                <div class="ticker-cell-val price tabular">${escapeHtml(card.price_estimate || '—')}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2111,7 +2176,7 @@
             <ul class="signal-list">${goodHtml}</ul>
           </div>` : ''}
           ${skipHtml ? `<div class="signal-card">
-            <div class="ticker-cell-label">Known Trade-offs</div>
+            <div class="ticker-cell-label">Trade-offs to Consider</div>
             <ul class="signal-list tradeoffs">${skipHtml}</ul>
           </div>` : ''}
         </div>
@@ -2151,7 +2216,7 @@
         }).join('');
 
         const rows = [
-          ['Launch & MSRP', `${a.launch_date} · ${a.price_estimate}`, `${b.launch_date} · ${b.price_estimate}`],
+          ['Launch & Price', `${a.launch_date} · ${a.price_estimate}`, `${b.launch_date} · ${b.price_estimate}`],
           ['Display', a.specs?.display, b.specs?.display],
           ['Silicon / SoC', a.specs?.processor, b.specs?.processor],
           ['Memory & Storage', a.specs?.ram_storage, b.specs?.ram_storage],
@@ -2175,12 +2240,18 @@
         bodyHtml = `
           <div class="compare-legend">
             <div class="legend-card">
-              <div><span class="legend-dot" style="background:var(--signal-a)"></span><span class="legend-name">${escapeHtml(a.name)}</span></div>
-              <div class="legend-sub tabular">${escapeHtml(a.price_estimate)}</div>
+              <div class="legend-thumb"><img src="${escapeHtml(phoneImageUrl(a))}" alt="${escapeHtml(a.name)}" /></div>
+              <div>
+                <div><span class="legend-dot" style="background-color:var(--crimson)"></span><span class="legend-name">${escapeHtml(a.name)}</span></div>
+                <div class="legend-sub tabular">${escapeHtml(a.price_estimate)}</div>
+              </div>
             </div>
             <div class="legend-card">
-              <div><span class="legend-dot" style="background:var(--signal-b)"></span><span class="legend-name">${escapeHtml(b.name)}</span></div>
-              <div class="legend-sub tabular">${escapeHtml(b.price_estimate)}</div>
+              <div class="legend-thumb"><img src="${escapeHtml(phoneImageUrl(b))}" alt="${escapeHtml(b.name)}" /></div>
+              <div>
+                <div><span class="legend-dot" style="background-color:var(--compare-b)"></span><span class="legend-name">${escapeHtml(b.name)}</span></div>
+                <div class="legend-sub tabular">${escapeHtml(b.price_estimate)}</div>
+              </div>
             </div>
           </div>
 
@@ -2192,7 +2263,7 @@
           <div class="matrix-table">${matrixHtml}</div>
         `;
       } else {
-        bodyHtml = `<p class="device-tagline">Enter two smartphones above and press Enter to generate an instant head-to-head radar and hardware delta matrix.</p>`;
+        bodyHtml = `<p class="device-tagline">Enter two smartphones above and press Enter to load both device images, radar scores, and side-by-side specifications.</p>`;
       }
 
       box.innerHTML = `
@@ -2200,7 +2271,7 @@
           <input type="text" id="compInputA" value="${escapeHtml(valA)}" placeholder="Device A" />
           <span class="vs-divider">VS</span>
           <input type="text" id="compInputB" value="${escapeHtml(valB)}" placeholder="Device B" />
-          <button type="submit" class="compare-go" title="Run Head-to-Head Comparison">
+          <button type="submit" class="compare-go" title="Compare">
             <svg class="icon" viewBox="0 0 24 24">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
@@ -2218,24 +2289,21 @@
       });
     }
 
-    // =========================================================================
-    // Right Stream & Synchronized Turn Lifecycle
-    // =========================================================================
     function renderWelcomeIndex() {
       const inner = el('streamInner');
       const starters = [
-        ['OnePlus 13', 'Snapdragon 8 Elite · 6000mAh Si/C · 100W'],
-        ['Samsung Galaxy S26 Ultra vs iPhone 16 Pro Max', 'Head-to-Head Flagship Delta'],
-        ['Google Pixel 9 Pro', 'Tensor G4 · Pro Triple Optics · 7-Yr OS'],
-        ['Best gaming & battery phone under $450', 'Mid-Range Value Screening']
+        ['Samsung Galaxy S25 Ultra', 'Snapdragon 8 Elite · 200MP Quad Telephoto'],
+        ['OnePlus 13 vs iPhone 16 Pro Max', 'Head-to-Head Flagship Comparison'],
+        ['Google Pixel 9 Pro', 'Tensor G4 · Pro Triple Camera · 7-Yr OS'],
+        ['Nothing Phone 3a', 'Clean Mid-Range Value & Glyph Design']
       ];
 
       inner.innerHTML = `
         <div class="editorial-welcome" id="welcomeBlock">
-          <div class="welcome-kicker">Hardware Intelligence Terminal</div>
-          <h2 class="welcome-heading">Inspect specifications, launch pricing, and real-world suitability.</h2>
+          <div class="welcome-kicker">Smartphone Intelligence Advisor</div>
+          <h2 class="welcome-heading">Search any mobile phone for full specifications, GSMArena imagery, and concise buying advice.</h2>
           <p class="welcome-copy">
-            Query any smartphone to populate its hardware telemetry and 5-axis radar on the left, while the analyst speaks and streams insights word-by-word on the right.
+            Full hardware specifications and official device imagery load in the left panel, while the right panel delivers clear contextual insights synchronized word-for-word with voice output.
           </p>
           <div class="index-list">
             ${starters.map(([q, spec]) => `
@@ -2278,14 +2346,11 @@
           <div class="turn-ai-meta">
             <span class="turn-ai-author">SpecDeck</span>
             <span class="verified-slot"></span>
-            <span class="live-voice-tag">
-              <span class="eq-bars inline"><span></span><span></span><span></span></span>
-              <span class="live-voice-text">Preparing…</span>
-            </span>
+            <span class="live-voice-tag"><span class="live-voice-text">Analyzing</span></span>
             <span class="tabular">${ts}</span>
           </div>
           <div class="turn-actions">
-            <button type="button" class="micro-icon-btn speak-turn-btn" title="Replay with synchronized voice">
+            <button type="button" class="micro-icon-btn speak-turn-btn" title="Replay synchronized voice">
               <svg class="icon" viewBox="0 0 24 24">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -2300,10 +2365,7 @@
           </div>
         </div>
         <div class="prose">
-          <div class="voice-prep-indicator">
-            <span class="eq-bars inline"><span></span><span></span><span></span></span>
-            <span>Analyzing hardware telemetry…</span>
-          </div>
+          <div class="voice-prep-indicator">Fetching mobile data &amp; preparing response…</div>
         </div>
         <div class="sources-line hidden"></div>
       `;
@@ -2331,10 +2393,10 @@
       div.innerHTML = `
         <div class="turn-ai-head">
           <div class="turn-ai-meta">
-            <span class="turn-ai-author" style="color:var(--signal-err)">System Notice</span>
+            <span class="turn-ai-author" style="color:var(--crimson)">System Notice</span>
           </div>
         </div>
-        <div class="prose" style="color:#fda4af">${renderMarkdown(message)}</div>
+        <div class="prose">${renderMarkdown(message)}</div>
       `;
       el('streamInner').appendChild(div);
       scrollStreamBottom();
@@ -2352,7 +2414,6 @@
       }
     }
 
-    // Replay any completed AI turn with word-by-word voice sync!
     async function replayTurnWithVoiceSync(turnObj) {
       if (!turnObj || !turnObj.fullReply) return;
       unlockAudioOnGesture();
@@ -2361,12 +2422,7 @@
       const sessionId = ++state.syncSessionId;
       state.activeSyncTurn = turnObj;
       setSpeakingUI(true);
-      turnObj.proseEl.innerHTML = `
-        <div class="voice-prep-indicator">
-          <span class="eq-bars inline"><span></span><span></span><span></span></span>
-          <span>Preparing voice sync…</span>
-        </div>
-      `;
+      turnObj.proseEl.innerHTML = `<div class="voice-prep-indicator">Starting voice sync…</div>`;
 
       const segQueue = [];
       let streamFinished = false;
@@ -2379,7 +2435,6 @@
             const seg = segQueue.shift();
             if (firstSeg) {
               turnObj.proseEl.innerHTML = '';
-              if (turnObj.liveTextEl) turnObj.liveTextEl.textContent = 'Speaking';
               firstSeg = false;
             }
             await playSegmentInLockstep(seg, turnObj.proseEl, sessionId);
@@ -2436,9 +2491,6 @@
       }
     }
 
-    // =========================================================================
-    // Voice Button UI & State Updates
-    // =========================================================================
     function syncVoiceToggleIcon() {
       const btn = el('voiceBtn');
       const spk = btn.querySelector('.speaker-svg');
@@ -2447,19 +2499,19 @@
       btn.classList.toggle('active', state.autoVoice);
       spk.style.display = state.autoVoice ? '' : 'none';
       mut.style.display = state.autoVoice ? 'none' : '';
-      lbl.textContent = state.autoVoice ? 'SYNC' : 'MUTE';
+      lbl.textContent = state.autoVoice ? 'VOICE ON' : 'MUTED';
     }
 
     function setSpeakingUI(speaking) {
       const btn = el('voiceBtn');
       btn.classList.toggle('speaking', speaking);
-      el('voiceStateLabel').textContent = speaking ? 'STOP' : (state.autoVoice ? 'SYNC' : 'MUTE');
+      el('voiceStateLabel').textContent = speaking ? 'STOP' : (state.autoVoice ? 'VOICE ON' : 'MUTED');
       if (!speaking) syncVoiceToggleIcon();
     }
 
     function updateStatusUI(busy, text, hasKey = state.hasApiKey) {
       const dot = el('statusDot');
-      dot.className = 'status-dot' + (busy ? ' busy' : (!hasKey ? ' warn' : ''));
+      dot.className = 'status-dot ' + (busy ? 'busy' : (hasKey ? 'ready' : 'warn'));
       el('telemetryText').textContent = text;
       el('missingKeyDot').style.display = hasKey ? 'none' : 'block';
       el('sendBtn').disabled = busy;
@@ -2485,19 +2537,19 @@
         state.primaryCard = data.demo_primary;
         state.compareCard = data.demo_compare;
 
+        if (state.primaryCard?.name) {
+          el('activeContextLabel').textContent = state.primaryCard.name;
+        }
         syncVoiceToggleIcon();
         populateSettingsControls();
         renderDeck();
         renderWelcomeIndex();
-        updateStatusUI(false, state.hasApiKey ? 'ENGINE READY' : 'API KEY NEEDED');
+        updateStatusUI(false, state.hasApiKey ? 'READY' : 'API KEY NEEDED');
       } catch (e) {
         console.error(e);
       }
     }
 
-    // =========================================================================
-    // Main Streaming Chat Submission (Zero-Delay Voice + Word-by-Word Lockstep)
-    // =========================================================================
     async function submitPrompt(prompt) {
       if (!prompt || state.busy) return;
 
@@ -2507,7 +2559,6 @@
         return;
       }
 
-      // Stop any ongoing speech cleanly before starting the new turn
       stopActiveSync(true);
 
       state.busy = true;
@@ -2519,13 +2570,12 @@
       state.activeSyncTurn = turnObj;
 
       const t0 = performance.now();
-      updateStatusUI(true, 'QUERYING TELEMETRY…');
+      updateStatusUI(true, 'WORKING…');
 
       const segQueue = [];
       let streamFinished = false;
       let wakeConsumer = null;
 
-      // Consumer coroutine: plays each streamed segment in order & reveals words in real time
       const consumerPromise = (async () => {
         if (!useVoiceThisTurn) return;
         let firstSeg = true;
@@ -2588,13 +2638,21 @@
               turnObj.fullReply = evt.full_reply || '';
               state.previewMode = false;
 
-              if (evt.updated_card) state.primaryCard = evt.updated_card;
+              if (evt.updated_card) {
+                state.primaryCard = evt.updated_card;
+              }
               if (evt.updated_compare_card) {
                 state.compareCard = evt.updated_compare_card;
-                setActiveTab('compare');
-              } else if (evt.updated_card && !evt.active_compare) {
-                state.compareCard = null;
+                state.activeTab = 'compare';
+                el('tabSingle').classList.remove('active');
+                el('tabCompare').classList.add('active');
+              } else if (evt.updated_card) {
+                state.compareCard = evt.active_compare || null;
+                state.activeTab = 'single';
+                el('tabSingle').classList.add('active');
+                el('tabCompare').classList.remove('active');
               }
+
               if (evt.model_used) state.model = evt.model_used;
               renderDeck();
 
@@ -2605,7 +2663,7 @@
               el('activeContextLabel').textContent = ctxParts.join(' ') || 'Active';
 
               if (evt.used_web_search) {
-                turnObj.verifiedSlotEl.innerHTML = '<span class="verified-tag">● Web Grounded</span>';
+                turnObj.verifiedSlotEl.innerHTML = '<span class="verified-tag">Web Verified</span>';
               }
               if (evt.search_sources && evt.search_sources.length) {
                 turnObj.sourcesEl.innerHTML = evt.search_sources.map((s) =>
@@ -2616,7 +2674,7 @@
               turnObj.speakBtn.addEventListener('click', () => replayTurnWithVoiceSync(turnObj));
               turnObj.copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(turnObj.fullReply);
-                showToast('Copied analyst response');
+                showToast('Copied response');
               });
 
               const ms = Math.round(performance.now() - t0);
@@ -2625,8 +2683,7 @@
               updateStatusUI(false, `${tok}${ms}ms`);
 
               if (useVoiceThisTurn) {
-                const prepSpan = turnObj.prepEl?.querySelector('span:last-child');
-                if (prepSpan) prepSpan.textContent = 'Starting synchronized voice…';
+                if (turnObj.prepEl) turnObj.prepEl.textContent = 'Starting synchronized voice…';
               } else {
                 if (turnObj.liveTagEl) turnObj.liveTagEl.remove();
                 await streamWordsSilent(turnObj.fullReply, turnObj.proseEl, sessionId);
@@ -2678,9 +2735,6 @@
       }
     }
 
-    // =========================================================================
-    // Settings Sheet & Event Bindings
-    // =========================================================================
     function populateSettingsControls() {
       const mSel = el('modelSelect');
       mSel.innerHTML = state.models.map((m) =>
@@ -2705,6 +2759,7 @@
     }
 
     function closeSettings() {
+      stopVoicePreview();
       el('settingsModal').classList.remove('open');
     }
 
@@ -2749,8 +2804,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ auto_voice: state.autoVoice })
         }).catch(() => {});
-        showToast(state.autoVoice ? 'Voice + Word Sync ON' : 'Voice muted (text stream only)');
+        showToast(state.autoVoice ? 'Voice Sync enabled' : 'Voice muted');
       }
+    });
+
+    el('testVoiceBtn').addEventListener('click', handleTestVoice);
+    el('voiceSelect').addEventListener('change', () => {
+      if (state.testingVoice) stopVoicePreview();
     });
 
     el('settingsBtn').addEventListener('click', openSettings);
@@ -2801,6 +2861,7 @@
     });
 
     el('saveSettingsBtn').addEventListener('click', async () => {
+      stopVoicePreview();
       const payload = {
         api_key: el('apiKeyInput').value.trim(),
         model: el('modelSelect').value,
@@ -2823,7 +2884,7 @@
       state.autostart = data.autostart;
       syncVoiceToggleIcon();
       el('apiKeyInput').value = '';
-      updateStatusUI(false, state.hasApiKey ? 'ENGINE READY' : 'API KEY NEEDED');
+      updateStatusUI(false, state.hasApiKey ? 'READY' : 'API KEY NEEDED');
       closeSettings();
       showToast('Settings saved');
     });
@@ -2835,7 +2896,7 @@
       const st = await (await fetch('/api/state')).json();
       state.primaryCard = st.demo_primary;
       state.compareCard = st.demo_compare;
-      el('activeContextLabel').textContent = 'Standby';
+      el('activeContextLabel').textContent = state.primaryCard?.name || 'Standby';
       renderDeck();
       renderWelcomeIndex();
       showToast('Session cleared');
@@ -2845,7 +2906,7 @@
       const res = await fetch(`/api/export?mode=${state.activeTab}`);
       const md = await res.text();
       await navigator.clipboard.writeText(md);
-      showToast('Datasheet copied to clipboard');
+      showToast('Datasheet copied');
     });
 
     el('exportSheetBtn').addEventListener('click', async () => {

@@ -1,9 +1,3 @@
-"""
-app.py — SpecDeck Hardware Intelligence Studio
-Backend API (FastAPI + Groq + Live Web Grounding + Real-Time Word-Synced Neural TTS)
-+ Standalone Native Desktop App Window Launcher (Windows & Linux).
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -48,6 +42,7 @@ from voice_engine import (
     synthesize_mp3_bytes,
     warm_tts_engine,
 )
+from web_search import fetch_phone_image_bytes
 
 APP_DIR = Path(__file__).resolve().parent
 INDEX_HTML_PATH = APP_DIR / "static" / "index.html"
@@ -55,12 +50,11 @@ INDEX_HTML_PATH = APP_DIR / "static" / "index.html"
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    # Pre-warm Edge Neural TTS WebSocket/DRM token in background for sub-500ms first word!
     asyncio.create_task(warm_tts_engine())
     yield
 
 
-app = FastAPI(title="SpecDeck Hardware Intelligence", version="2.1.0", lifespan=lifespan)
+app = FastAPI(title="SpecDeck", version="2.2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -77,7 +71,6 @@ class AppRuntimeState:
         self.assistant = SpecDeckAssistant(api_key=saved_key, model=saved_model)
         self.voice_id: str = resolve_fast_voice(load_env_setting("VOICE_ID", DEFAULT_NEURAL_VOICE))
         self.live_web: bool = load_env_setting("LIVE_WEB_SEARCH", "1") != "0"
-        # Default VOICE_SYNC=1 (ON) so live word-by-word voice sync works out of the box
         self.auto_voice: bool = load_env_setting("VOICE_SYNC", "1") != "0"
         self.models: List[str] = list(DEFAULT_MODELS)
         if saved_model not in self.models:
@@ -87,9 +80,6 @@ class AppRuntimeState:
 STATE = AppRuntimeState()
 
 
-# ---------------------------------------------------------------------------
-# Request Schemas
-# ---------------------------------------------------------------------------
 class ChatRequest(BaseModel):
     message: str
     use_web_search: bool = True
@@ -119,9 +109,6 @@ class TTSRequest(BaseModel):
     voice: Optional[str] = None
 
 
-# ---------------------------------------------------------------------------
-# API Routes
-# ---------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def serve_ui() -> HTMLResponse:
     if not INDEX_HTML_PATH.exists():
@@ -143,6 +130,19 @@ def get_state() -> Dict[str, Any]:
         "demo_primary": (STATE.assistant.current_card or DEMO_PHONE_CARD).to_dict(),
         "demo_compare": (STATE.assistant.compare_card or DEMO_COMPARE_CARD).to_dict(),
     }
+
+
+@app.get("/api/phone-image")
+async def get_phone_image(
+    name: str = Query(..., min_length=1),
+    brand: str = Query(""),
+) -> Response:
+    img_bytes, content_type = await asyncio.to_thread(fetch_phone_image_bytes, name, brand)
+    return Response(
+        content=img_bytes,
+        media_type=content_type,
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @app.post("/api/chat")
@@ -172,13 +172,6 @@ def chat_turn(req: ChatRequest) -> Dict[str, Any]:
 
 @app.post("/api/chat/stream")
 async def chat_turn_stream(req: ChatRequest) -> StreamingResponse:
-    """
-    Streams NDJSON events:
-      1. `meta`: Hardware card updates, sources, token telemetry, and full fallback text.
-      2. `segment` (0..N-1): Base64 MP3 + exact `WordBoundary` millisecond timings so the UI
-         reveals each word in real-time lockstep with the neural voice.
-      3. `done`: Completion marker.
-    """
     prompt = req.message.strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="Empty prompt.")
@@ -229,7 +222,6 @@ async def chat_turn_stream(req: ChatRequest) -> StreamingResponse:
 
 @app.post("/api/tts/stream")
 async def synthesize_speech_stream(req: TTSRequest) -> StreamingResponse:
-    """Streams segmented MP3 + WordBoundary events for replaying any message in sync."""
     text = req.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Empty speech text.")
@@ -284,7 +276,7 @@ def update_settings(req: SettingsUpdateRequest) -> Dict[str, Any]:
     if STATE.assistant.model not in STATE.models:
         STATE.models.insert(0, STATE.assistant.model)
 
-    STATE.voice_id = req.voice_id
+    STATE.voice_id = resolve_fast_voice(req.voice_id)
     STATE.live_web = req.live_web
     STATE.auto_voice = req.auto_voice
 
@@ -346,9 +338,6 @@ def export_markdown(mode: str = Query("single")) -> PlainTextResponse:
     return PlainTextResponse(md)
 
 
-# ---------------------------------------------------------------------------
-# Standalone Native Desktop App Window Launcher (Linux + Windows)
-# ---------------------------------------------------------------------------
 def _find_free_port(preferred: int = 8765) -> int:
     for port in (preferred, 8766, 8767, 0):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -405,7 +394,6 @@ def _detect_app_mode_browser() -> Optional[str]:
 
 
 def launch_desktop_app() -> None:
-    """Start local FastAPI engine and open SpecDeck in a chromeless native window."""
     port = _find_free_port(8765)
     url = f"http://127.0.0.1:{port}"
 
@@ -422,7 +410,7 @@ def launch_desktop_app() -> None:
     profile_dir = Path.home() / ".cache" / "specdeck-window-profile"
     profile_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"[SpecDeck] Running Hardware Intelligence Studio at {url}")
+    print(f"[SpecDeck] Running at {url}")
 
     if browser_bin:
         cmd = [
@@ -445,7 +433,7 @@ def launch_desktop_app() -> None:
             pass
 
     webbrowser.open(url)
-    print("[SpecDeck] Opened in default browser. Press Ctrl+C to stop SpecDeck.")
+    print("[SpecDeck] Opened in default browser. Press Ctrl+C to stop.")
     try:
         while srv_thread.is_alive():
             time.sleep(0.5)
@@ -454,10 +442,10 @@ def launch_desktop_app() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="SpecDeck — Smartphone Hardware Intelligence")
-    parser.add_argument("--server", action="store_true", help="Run in headless HTTP server mode")
-    parser.add_argument("--host", default="0.0.0.0", help="Bind host in --server mode")
-    parser.add_argument("--port", type=int, default=8000, help="Bind port in --server mode")
+    parser = argparse.ArgumentParser(description="SpecDeck")
+    parser.add_argument("--server", action="store_true")
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
 
     if STATE.assistant.api_key:

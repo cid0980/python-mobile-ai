@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# ============================================================================
-# start_linux.sh — SpecDeck One-Click Linux Auto-Installer & Launcher
-# Automatically installs Python 3 + venv if missing, sets up .venv,
-# installs/updates requirements.txt dependencies, and opens SpecDeck.
-# ============================================================================
-
 set -euo pipefail
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -21,14 +15,11 @@ VENV_DIR="$SCRIPT_DIR/.venv"
 VENV_PY="$VENV_DIR/bin/python"
 STAMP_FILE="$VENV_DIR/.reqs.sha256"
 
-log()  { printf "\033[1;34m[SpecDeck]\033[0m %s\n" "$*"; }
-ok()   { printf "\033[1;32m[  OK  ]\033[0m %s\n" "$*"; }
-warn() { printf "\033[1;33m[ WARN ]\033[0m %s\n" "$*"; }
-err()  { printf "\033[1;31m[ERROR ]\033[0m %s\n" "$*" >&2; }
+log()  { printf "[SpecDeck] %s\n" "$*"; }
+ok()   { printf "[  OK  ] %s\n" "$*"; }
+warn() { printf "[ WARN ] %s\n" "$*"; }
+err()  { printf "[ERROR ] %s\n" "$*" >&2; }
 
-# ----------------------------------------------------------------------------
-# 1. Check & Auto-Install Python 3.9+ with venv
-# ----------------------------------------------------------------------------
 check_system_python() {
     command -v python3 >/dev/null 2>&1 || return 1
     python3 -c "import sys, venv; sys.exit(0 if sys.version_info >= (3, 9) else 1)" >/dev/null 2>&1
@@ -81,9 +72,6 @@ if ! check_system_python; then
 fi
 ok "System Python ($(python3 --version 2>&1)) verified."
 
-# ----------------------------------------------------------------------------
-# 2. Create Virtual Environment (.venv) & Bootstrap pip
-# ----------------------------------------------------------------------------
 if [ ! -x "$VENV_PY" ]; then
     log "Creating isolated Python virtual environment (.venv)..."
     rm -rf "$VENV_DIR"
@@ -103,9 +91,6 @@ if [ ! -x "$VENV_PY" ]; then
     fi
 fi
 
-# ----------------------------------------------------------------------------
-# 3. Install / Verify All Dependencies from requirements.txt
-# ----------------------------------------------------------------------------
 REQ_HASH="$(python3 -c "import hashlib, pathlib; print(hashlib.sha256(pathlib.Path('requirements.txt').read_bytes()).hexdigest())")"
 SAVED_HASH=""
 [ -f "$STAMP_FILE" ] && SAVED_HASH="$(cat "$STAMP_FILE" 2>/dev/null || true)"
@@ -125,9 +110,6 @@ else
     ok "All dependencies already up to date."
 fi
 
-# ----------------------------------------------------------------------------
-# 4. Handle CLI Modes (Setup-Only / Auto-Start / Background / Foreground Launch)
-# ----------------------------------------------------------------------------
 case "$MODE" in
     --setup-only)
         "$VENV_PY" "$SCRIPT_DIR/autostart_manager.py" --shortcut >/dev/null 2>&1 || true
@@ -153,7 +135,7 @@ case "$MODE" in
         exit 0
         ;;
     *)
-        log "Starting SpecDeck Hardware Intelligence Studio..."
+        log "Starting SpecDeck..."
         exec "$VENV_PY" "$SCRIPT_DIR/app.py" "$@"
         ;;
 esac
