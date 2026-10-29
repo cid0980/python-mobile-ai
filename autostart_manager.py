@@ -22,6 +22,34 @@ def _win_startup_vbs() -> Path:
     return _win_startup_dir() / "SpecDeckAI_Autostart.vbs"
 
 
+def _win_startup_link() -> Path:
+    return _win_startup_dir() / "SpecDeckAI_Autostart.lnk"
+
+
+def _create_windows_link(destination: Path) -> None:
+    """Use native shortcuts instead of VBScript (disabled on some Windows PCs)."""
+    def quote(value: object) -> str:
+        return "'" + str(value).replace("'", "''") + "'"
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    script = PROJECT_DIR / "start_windows.ps1"
+    command = (
+        "$ErrorActionPreference = 'Stop'; "
+        "$ws = New-Object -ComObject WScript.Shell; "
+        f"$lnk = $ws.CreateShortcut({quote(destination)}); "
+        "$lnk.TargetPath = Join-Path $env:SystemRoot 'System32\\WindowsPowerShell\\v1.0\\powershell.exe'; "
+        f"$lnk.Arguments = {quote('-NoLogo -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + str(script) + '" --silent')}; "
+        f"$lnk.WorkingDirectory = {quote(PROJECT_DIR)}; "
+        "$lnk.IconLocation = 'shell32.dll,23'; "
+        "$lnk.Description = 'Launch SpecDeck'; $lnk.Save()"
+    )
+    # EncodedCommand preserves Unicode paths and avoids nested shell quoting.
+    import base64
+    encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
+    subprocess.run(["powershell.exe", "-NoProfile", "-EncodedCommand", encoded],
+                   check=True, capture_output=True, text=True)
+
+
 def _linux_autostart_file() -> Path:
     xdg_config = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
     return xdg_config / "autostart" / "specdeck-ai.desktop"
@@ -61,7 +89,7 @@ def _linux_desktop_entry_content(autostart_mode: bool = False) -> str:
 
 def is_autostart_enabled() -> bool:
     if os.name == "nt":
-        return _win_startup_vbs().exists()
+        return _win_startup_link().exists() or _win_startup_vbs().exists()
     if sys.platform.startswith("linux"):
         path = _linux_autostart_file()
         if not path.exists():
@@ -74,20 +102,9 @@ def is_autostart_enabled() -> bool:
 def enable_autostart() -> Tuple[bool, str]:
     try:
         if os.name == "nt":
-            startup_dir = _win_startup_dir()
-            startup_dir.mkdir(parents=True, exist_ok=True)
-            bat_path = PROJECT_DIR / "start_windows.bat"
-            vbs_path = _win_startup_vbs()
-
-            escaped_dir = str(PROJECT_DIR).replace('"', '""')
-            escaped_bat = str(bat_path).replace('"', '""')
-            vbs_content = (
-                'Set WshShell = CreateObject("WScript.Shell")\r\n'
-                f'WshShell.CurrentDirectory = "{escaped_dir}"\r\n'
-                f'WshShell.Run """{escaped_bat}"" --silent", 0, False\r\n'
-            )
-            vbs_path.write_text(vbs_content, encoding="utf-8")
-            return True, f"Windows Login Auto-Start enabled ({vbs_path.name})"
+            _create_windows_link(_win_startup_link())
+            _win_startup_vbs().unlink(missing_ok=True)
+            return True, "Windows Login Auto-Start enabled for the current user."
 
         if sys.platform.startswith("linux"):
             start_script = PROJECT_DIR / "start_linux.sh"
@@ -108,9 +125,8 @@ def enable_autostart() -> Tuple[bool, str]:
 def disable_autostart() -> Tuple[bool, str]:
     try:
         if os.name == "nt":
-            vbs_path = _win_startup_vbs()
-            if vbs_path.exists():
-                vbs_path.unlink()
+            _win_startup_vbs().unlink(missing_ok=True)
+            _win_startup_link().unlink(missing_ok=True)
             return True, "Windows Login Auto-Start disabled."
 
         if sys.platform.startswith("linux"):
@@ -127,33 +143,16 @@ def disable_autostart() -> Tuple[bool, str]:
 def create_shortcuts() -> Tuple[bool, str]:
     try:
         if os.name == "nt":
-            bat_path = PROJECT_DIR / "start_windows.bat"
-            vbs_launcher = PROJECT_DIR / ".launch_hidden.vbs"
-            escaped_dir = str(PROJECT_DIR).replace('"', '""')
-            escaped_bat = str(bat_path).replace('"', '""')
-            vbs_launcher.write_text(
-                'Set WshShell = CreateObject("WScript.Shell")\r\n'
-                f'WshShell.CurrentDirectory = "{escaped_dir}"\r\n'
-                f'WshShell.Run """{escaped_bat}"" --silent", 0, False\r\n',
-                encoding="utf-8",
+            # Resolve the real Desktop (including OneDrive redirection).
+            result = subprocess.run(
+                ["powershell.exe", "-NoProfile", "-Command",
+                 "[Console]::OutputEncoding = [Text.Encoding]::UTF8; [Environment]::GetFolderPath('Desktop')"],
+                check=True, capture_output=True, encoding="utf-8",
             )
-            ps_cmd = (
-                "$ws = New-Object -ComObject WScript.Shell; "
-                "$desk = [Environment]::GetFolderPath('Desktop'); "
-                "$lnk = $ws.CreateShortcut((Join-Path $desk 'SpecDeck.lnk')); "
-                "$lnk.TargetPath = 'wscript.exe'; "
-                f"$lnk.Arguments = '\"{vbs_launcher}\"'; "
-                f"$lnk.WorkingDirectory = '{PROJECT_DIR}'; "
-                "$lnk.IconLocation = 'shell32.dll,23'; "
-                "$lnk.Description = 'Launch SpecDeck Smartphone Advisor'; "
-                "$lnk.Save()"
-            )
-            subprocess.run(
-                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps_cmd],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
+            desktop = result.stdout.strip()
+            if not desktop:
+                raise RuntimeError("Windows did not return a Desktop folder")
+            _create_windows_link(Path(desktop) / "SpecDeck.lnk")
             return True, "Created 'SpecDeck' shortcut on your Windows Desktop."
 
         if sys.platform.startswith("linux"):

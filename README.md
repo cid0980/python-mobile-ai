@@ -91,3 +91,40 @@ python-mobile-ai/
 ## License
 
 Released under the [MIT License](LICENSE).
+
+## Windows setup troubleshooting (revised launcher)
+
+1. Extract the whole ZIP into a writable folder, such as your user Documents folder.
+   Do not run directly inside the ZIP or put it under `Program Files`.
+2. Double-click **start_windows.bat**. It installs Python 3.12 when needed, repairs
+   an unusable `.venv`, installs/verifies packages, then opens the application.
+   Internet access is required for the first setup. Python 3.10–3.13 is accepted;
+   the automatic installer uses Python 3.12.10.
+3. Administrator rights are **not normally required**. If your environment requires
+   elevation, use **start_windows_admin.bat** and approve the Windows UAC prompt.
+   Do not use another user's administrator account for per-user installation or
+   shortcuts: those would belong to that account. Elevation does not bypass company
+   security policies, download restrictions, or antivirus rules.
+4. To enable login launch and create a desktop shortcut, run
+   **autostart_windows.bat** and choose **1**. This also launches the app immediately.
+   Login launch is opt-in, not silently enabled during installation.
+5. Setup failures remain visible. Logs are in **%LOCALAPPDATA%\SpecDeck\logs**:
+   `setup.log` for installation, `app.log` for background application errors.
+   For direct output run `start_windows.bat --console` from Command Prompt.
+6. Re-run `start_windows.bat` after a failed download or dependency installation.
+   Failed installs are not marked successful. Broken environments are preserved
+   in `.venv.broken-*` folders; these may be deleted after successful repair.
+7. Keep the extracted project in place. If you move it, recreate the shortcuts
+   and enable login launch again. Native `.lnk` shortcuts replace the old VBScript
+   launchers; re-enabling login launch removes the legacy Startup VBScript.
+
+The application server intentionally stays running if Chromium hands the window
+off to another browser process. Closing the app window may leave the launcher
+running; close its console (or stop its Python process in Task Manager) to stop it.
+This avoids the previous premature shutdown but is not full window-lifecycle tracking.
+
+### Verification
+
+`python -m unittest discover -s tests -v` runs the launcher regression tests.
+The Windows installer, UAC, browser window and login launch must additionally be
+smoke-tested on Windows 10/11; Linux checks cannot validate those OS integrations.

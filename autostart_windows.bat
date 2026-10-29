@@ -1,82 +1,36 @@
 @echo off
-setlocal EnableExtensions
-cd /d "%~dp0"
-
-set "ARG=%~1"
-
-if /I "%ARG%"=="--enable" (
-    call "%~dp0start_windows.bat" --setup-only
-    if errorlevel 1 exit /b 1
-    call "%~dp0start_windows.bat" --enable-autostart
-    exit /b %ERRORLEVEL%
-)
-
-if /I "%ARG%"=="--disable" (
-    call "%~dp0start_windows.bat" --setup-only
-    if errorlevel 1 exit /b 1
-    call "%~dp0start_windows.bat" --disable-autostart
-    exit /b %ERRORLEVEL%
-)
-
-if /I "%ARG%"=="--status" (
-    call "%~dp0start_windows.bat" --setup-only
-    if errorlevel 1 exit /b 1
-    call "%~dp0start_windows.bat" --status-autostart
-    exit /b %ERRORLEVEL%
-)
-
-echo ============================================================
-echo    SpecDeck — Windows Setup, Shortcut ^& Login Auto-Start
-echo ============================================================
-echo.
-echo Step 1/2: Verifying Python 3 ^& all dependencies...
-call "%~dp0start_windows.bat" --setup-only
-if errorlevel 1 (
-    echo.
-    echo [ERROR] Environment setup did not complete.
-    pause
-    exit /b 1
-)
-
-echo.
-call "%~dp0start_windows.bat" --status-autostart
-echo.
-echo Choose an option:
-echo   [1] Enable Auto-Start on Windows Login + Create Desktop Shortcut
-echo   [2] Create Desktop Shortcut Only (No Login Auto-Start)
-echo   [3] Disable Auto-Start on Windows Login
-echo   [4] Launch SpecDeck Right Now
-echo   [5] Exit
-echo.
-set /p "CHOICE=Enter choice [1-5]: "
-
-if "%CHOICE%"=="1" goto :opt_enable
-if "%CHOICE%"=="2" goto :opt_shortcut
-if "%CHOICE%"=="3" goto :opt_disable
-if "%CHOICE%"=="4" goto :opt_launch
-goto :eof_done
-
-:opt_enable
+setlocal EnableExtensions DisableDelayedExpansion
+if /I "%~1"=="--enable" goto enable
+if /I "%~1"=="--disable" goto disable
+if /I "%~1"=="--status" goto status
+if not "%~1"=="" exit /b 1
+echo SpecDeck - Windows Login Auto-Start
+echo [1] Enable login auto-start, create shortcut and launch now
+echo [2] Create desktop shortcut only
+echo [3] Disable login auto-start
+echo [4] Launch now
+echo [5] Exit
+choice /c 12345 /n /m "Choose [1-5]: "
+if errorlevel 5 exit /b 0
+if errorlevel 4 goto launch
+if errorlevel 3 goto disable
+if errorlevel 2 goto shortcut
+:enable
 call "%~dp0start_windows.bat" --enable-autostart
-echo.
-set /p "RUN_NOW=Launch SpecDeck right now as well? [Y/N]: "
-if /I "%RUN_NOW%"=="Y" call "%~dp0start_windows.bat" --silent
-pause
-exit /b 0
-
-:opt_shortcut
-"%~dp0.venv\Scripts\python.exe" "%~dp0autostart_manager.py" --shortcut
-pause
-exit /b 0
-
-:opt_disable
+if errorlevel 1 exit /b 1
+:launch
+call "%~dp0start_windows.bat"
+exit /b %ERRORLEVEL%
+:disable
 call "%~dp0start_windows.bat" --disable-autostart
+exit /b %ERRORLEVEL%
+:status
+call "%~dp0start_windows.bat" --status-autostart
+exit /b %ERRORLEVEL%
+:shortcut
+call "%~dp0start_windows.bat" --setup-only
+if errorlevel 1 exit /b 1
+"%~dp0.venv\Scripts\python.exe" "%~dp0autostart_manager.py" --shortcut
+set "RESULT=%ERRORLEVEL%"
 pause
-exit /b 0
-
-:opt_launch
-call "%~dp0start_windows.bat" --silent
-exit /b 0
-
-:eof_done
-exit /b 0
+exit /b %RESULT%

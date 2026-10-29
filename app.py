@@ -292,9 +292,11 @@ def update_settings(req: SettingsUpdateRequest) -> Dict[str, Any]:
 
     if req.autostart != is_autostart_enabled():
         if req.autostart:
-            enable_autostart()
+            ok, message = enable_autostart()
         else:
-            disable_autostart()
+            ok, message = disable_autostart()
+        if not ok:
+            raise HTTPException(status_code=500, detail=message)
 
     return {
         "ok": True,
@@ -349,7 +351,7 @@ def _find_free_port(preferred: int = 8765) -> int:
     return 8765
 
 
-def _wait_until_listening(host: str, port: int, timeout: float = 8.0) -> bool:
+def _wait_until_listening(host: str, port: int, timeout: float = 30.0) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -426,8 +428,10 @@ def launch_desktop_app() -> None:
             proc = subprocess.Popen(
                 cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
-            proc.wait()
-            server.should_exit = True
+            # Chromium may hand off to an existing process and exit immediately.
+            # Its process lifetime is not a reliable window/server lifetime.
+            while srv_thread.is_alive():
+                time.sleep(0.5)
             return
         except Exception:
             pass
